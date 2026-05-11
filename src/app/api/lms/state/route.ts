@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { AppState } from "@/types/lms";
 import { lmsStateStore, normalizeAppState } from "@/lib/server-state";
 
+export const runtime = "nodejs";
+
 type StateRequestBody = {
   state?: Partial<AppState>;
 };

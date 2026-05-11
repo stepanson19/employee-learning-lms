@@ -3,6 +3,10 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { AppState } from "@/types/lms";
 import { createInitialAppState } from "@/lib/state";
+import { createPostgresStateStore } from "@/lib/postgres-state";
+import { normalizeAppState, type StateStore } from "@/lib/state-normalize";
+
+export { normalizeAppState } from "@/lib/state-normalize";
 
 const schemaVersion = 1;
 
@@ -11,38 +15,9 @@ type StoredStateEnvelope = {
   state: Partial<AppState>;
 };
 
-export interface StateStore {
-  read: () => Promise<AppState>;
-  write: (state: AppState) => Promise<AppState>;
-  reset: () => Promise<AppState>;
-}
-
-function useArray<T>(value: unknown, fallback: T[]): T[] {
-  return Array.isArray(value) ? (value as T[]) : fallback;
-}
-
-export function normalizeAppState(value: unknown): AppState {
-  const initialState = createInitialAppState();
-
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return initialState;
-  }
-
-  const state = value as Partial<AppState>;
-
-  return createInitialAppState({
-    users: useArray(state.users, initialState.users),
-    courses: useArray(state.courses, initialState.courses),
-    progressRecords: useArray(state.progressRecords, initialState.progressRecords),
-    discussionMessages: useArray(state.discussionMessages, initialState.discussionMessages),
-    feedbackItems: useArray(state.feedbackItems, initialState.feedbackItems),
-    rewardRedemptions: useArray(state.rewardRedemptions, initialState.rewardRedemptions),
-    quizQuestions: useArray(state.quizQuestions, initialState.quizQuestions),
-    quizAttempts: useArray(state.quizAttempts, initialState.quizAttempts),
-    courseAssignments: useArray(state.courseAssignments, initialState.courseAssignments),
-    xpTransactions: useArray(state.xpTransactions, initialState.xpTransactions)
-  });
-}
+export type LmsStateStore = StateStore & {
+  kind: "file" | "postgres";
+};
 
 export function getDefaultStateFilePath(): string {
   if (process.env.LEARNHUB_STATE_FILE) {
@@ -56,7 +31,7 @@ export function getDefaultStateFilePath(): string {
   return join(process.cwd(), ".learnhub", "state.json");
 }
 
-export function createFileStateStore(filePath = getDefaultStateFilePath()): StateStore {
+export function createFileStateStore(filePath = getDefaultStateFilePath()): LmsStateStore {
   async function persist(state: AppState): Promise<AppState> {
     const normalizedState = normalizeAppState(state);
     const envelope: StoredStateEnvelope = {
@@ -71,6 +46,7 @@ export function createFileStateStore(filePath = getDefaultStateFilePath()): Stat
   }
 
   return {
+    kind: "file",
     async read() {
       try {
         const rawState = await readFile(filePath, "utf8");
@@ -91,4 +67,15 @@ export function createFileStateStore(filePath = getDefaultStateFilePath()): Stat
   };
 }
 
-export const lmsStateStore = createFileStateStore();
+export function createStateStore({ databaseUrl = process.env.DATABASE_URL }: { databaseUrl?: string } = {}): LmsStateStore {
+  if (databaseUrl) {
+    return {
+      ...createPostgresStateStore({ connectionString: databaseUrl }),
+      kind: "postgres"
+    };
+  }
+
+  return createFileStateStore();
+}
+
+export const lmsStateStore = createStateStore();

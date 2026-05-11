@@ -15,12 +15,14 @@
   "dependencies": {
     "lucide-react": "latest",
     "next": "latest",
+    "pg": "^8.20.0",
     "react": "latest",
     "react-dom": "latest"
   },
   "devDependencies": {
     "@playwright/test": "latest",
     "@types/node": "latest",
+    "@types/pg": "^8.20.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "latest",
