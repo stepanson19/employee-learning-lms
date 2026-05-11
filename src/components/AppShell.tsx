@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Award, BarChart3, BookOpen, LogOut, LayoutDashboard, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
+import { Award, BarChart3, BookOpen, Database, LogOut, LayoutDashboard, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
 import { useLms } from "@/components/LmsProvider";
 import { canAccessRoute } from "@/lib/auth";
 import { StatusPill } from "@/components/ui";
@@ -14,7 +14,8 @@ const navItems = [
   { href: "/profile", label: "Мой кабинет", icon: UserRound },
   { href: "/achievements", label: "Достижения", icon: Award },
   { href: "/analytics", label: "Аналитика", icon: BarChart3 },
-  { href: "/feedback", label: "Обратная связь", icon: MessageSquareText }
+  { href: "/feedback", label: "Обратная связь", icon: MessageSquareText },
+  { href: "/system", label: "Система", icon: Database }
 ];
 
 const roleLabels = {
@@ -68,7 +69,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
           <div>
             <p className="metric-label">ограничение роли</p>
             <h1>Раздел доступен HR и автору</h1>
-            <p className="section-description">для просмотра аналитики войдите под аккаунтом HR или автора учебных материалов</p>
+            <p className="section-description">для просмотра служебных разделов войдите под аккаунтом HR или автора учебных материалов</p>
           </div>
           <Link className="primary-button" href="/">
             на дашборд

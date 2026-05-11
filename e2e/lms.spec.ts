@@ -59,6 +59,23 @@ test.describe("full lms app", () => {
     await expect(page.getByRole("heading", { name: "Аналитика и отчетность" })).toBeVisible();
   });
 
+  test("restricts system tools for an employee and allows HR", async ({ page }) => {
+    await login(page);
+    await page.goto("/system");
+    await expect(page.getByRole("heading", { name: "Раздел доступен HR и автору" })).toBeVisible();
+
+    await page.evaluate(() => window.localStorage.clear());
+    await page.goto("/login");
+    await page.getByLabel("почта").fill("hr@learnhub.local");
+    await page.getByLabel("код доступа").fill("hr2026");
+    await page.getByRole("button", { name: "войти" }).click();
+    await page.goto("/system");
+
+    await expect(page.getByRole("heading", { name: "Системное управление" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "скачать JSON" })).toBeVisible();
+    await expect(page.getByText("JSON fallback").first()).toBeVisible();
+  });
+
   test("passes a quiz and persists updated progress", async ({ page }) => {
     await login(page);
     await page.goto("/courses/onboarding");

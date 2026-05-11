@@ -50,6 +50,7 @@ interface LmsContextValue {
   redeemReward: (rewardId: string) => void;
   createCourse: (input: CourseDraftInput) => void;
   assignCourse: (input: { userId: string; courseId: string; dueDate: string }) => void;
+  importState: (state: Partial<AppState>) => void;
   submitQuizAttempt: (courseId: string, lessonId: string, answers: Record<string, string>) => void;
   addQuizQuestion: (input: {
     courseId: string;
@@ -289,6 +290,13 @@ export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
             assignedAt: today()
           })
         );
+      },
+      importState(nextState) {
+        if (!session || (session.role !== "hr" && session.role !== "author")) {
+          return;
+        }
+
+        setState(withStateDefaults(nextState));
       },
       submitQuizAttempt(courseId, lessonId, answers) {
         if (!session) {

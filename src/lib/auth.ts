@@ -4,7 +4,7 @@ import { users } from "@/data/lms";
 export type AuthResult = { ok: true; session: Session } | { ok: false; message: string };
 
 const restrictedRoutes: Record<Role, string[]> = {
-  employee: ["/analytics"],
+  employee: ["/analytics", "/system"],
   hr: [],
   author: []
 };
