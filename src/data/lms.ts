@@ -1,4 +1,4 @@
-import type { Badge, Course, DiscussionMessage, Feedback, ProgressRecord, User } from "@/types/lms";
+import type { Badge, Course, DemoAccount, DiscussionMessage, Feedback, ProgressRecord, RewardItem, User } from "@/types/lms";
 
 export const users: User[] = [
   {
@@ -57,6 +57,12 @@ export const users: User[] = [
     skills: ["поддержка", "регламенты", "коммуникации"],
     notifications: ["назначен курс по безопасности", "новый комментарий в обсуждении"]
   }
+];
+
+export const demoAccounts: DemoAccount[] = [
+  { userId: "u-employee", email: "danil@learnhub.local", passcode: "employee2026", label: "Сотрудник" },
+  { userId: "u-hr", email: "hr@learnhub.local", passcode: "hr2026", label: "HR" },
+  { userId: "u-author", email: "author@learnhub.local", passcode: "author2026", label: "Автор" }
 ];
 
 export const courses: Course[] = [
@@ -187,4 +193,28 @@ export const feedbackItems: Feedback[] = [
   { id: "f-2", courseId: "c-sales", userId: "u-employee", rating: 4, comment: "хочется больше практических диалогов", createdAt: "2026-05-09" },
   { id: "f-3", courseId: "c-security", userId: "u-support", rating: 4, comment: "полезно, но нужен чек-лист", createdAt: "2026-05-08" },
   { id: "f-4", courseId: "c-management", userId: "u-hr", rating: 5, comment: "подходит для руководителей отделов", createdAt: "2026-05-07" }
+];
+
+export const rewardItems: RewardItem[] = [
+  {
+    id: "company-merch",
+    title: "Фирменный мерч",
+    description: "заявка на набор с корпоративными материалами",
+    costXp: 450,
+    availableFor: ["employee", "hr", "author"]
+  },
+  {
+    id: "extra-training",
+    title: "Дополнительное обучение",
+    description: "сертификат на внешний курс или интенсив",
+    costXp: 700,
+    availableFor: ["employee", "hr", "author"]
+  },
+  {
+    id: "focus-day",
+    title: "День без встреч",
+    description: "согласование свободного дня для глубокого обучения",
+    costXp: 900,
+    availableFor: ["employee", "hr"]
+  }
 ];

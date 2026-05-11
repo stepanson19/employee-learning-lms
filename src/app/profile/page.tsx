@@ -1,22 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import { CourseCard } from "@/components/course";
 import { BadgePill, MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
-import { badges, courses, progressRecords, users } from "@/data/lms";
+import { badges } from "@/data/lms";
+import { useLms } from "@/components/LmsProvider";
 import { getEarnedBadges, getLevelByXp } from "@/lib/lms";
 
-const currentUser = users.find((user) => user.id === "u-employee") ?? users[0];
-const level = getLevelByXp(currentUser.xp);
-const earnedBadges = getEarnedBadges(currentUser, progressRecords, badges);
-const userProgress = progressRecords.filter((record) => record.userId === currentUser.id);
-const assignedCourses = courses.filter((course) => userProgress.some((record) => record.courseId === course.id));
-
 export default function ProfilePage() {
+  const { currentUser, state } = useLms();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const level = getLevelByXp(currentUser.xp);
+  const earnedBadges = getEarnedBadges(currentUser, state.progressRecords, badges);
+  const userProgress = state.progressRecords.filter((record) => record.userId === currentUser.id);
+  const assignedCourses = state.courses.filter((course) => userProgress.some((record) => record.courseId === course.id));
+
   return (
     <div className="page page-grid">
-      <SectionHeader
-        title="Мой кабинет"
-        description="профиль сотрудника, учебный план, история обучения, награды и уведомления"
-      />
+      <SectionHeader title="Мой кабинет" description="профиль сотрудника, учебный план, история обучения, награды и уведомления" />
 
       <section className="split-grid">
         <div className="card card-pad stack">
@@ -83,7 +88,7 @@ export default function ProfilePage() {
         </aside>
       </section>
 
-      <section className="card card-pad">
+      <section className="card card-pad table-card">
         <SectionHeader title="История обучения" description="последние результаты по курсам" />
         <table className="table">
           <thead>
@@ -96,7 +101,7 @@ export default function ProfilePage() {
           </thead>
           <tbody>
             {userProgress.map((record) => {
-              const course = courses.find((item) => item.id === record.courseId);
+              const course = state.courses.find((item) => item.id === record.courseId);
 
               return (
                 <tr key={record.courseId}>

@@ -1,26 +1,32 @@
+"use client";
+
 import { Award, Medal, Sparkles, Trophy } from "lucide-react";
 import { BadgePill, MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
-import { badges, progressRecords, users } from "@/data/lms";
+import { badges, rewardItems } from "@/data/lms";
+import { useLms } from "@/components/LmsProvider";
 import { getEarnedBadges, getLeaderboard, getLevelByXp } from "@/lib/lms";
 
-const currentUser = users.find((user) => user.id === "u-employee") ?? users[0];
-const level = getLevelByXp(currentUser.xp);
-const earnedBadges = getEarnedBadges(currentUser, progressRecords, badges);
-const leaderboard = getLeaderboard(users);
-const departmentRows = Object.entries(
-  users.reduce<Record<string, number>>((acc, user) => {
-    acc[user.department] = (acc[user.department] ?? 0) + user.xp;
-    return acc;
-  }, {})
-).sort((left, right) => right[1] - left[1]);
-
 export default function AchievementsPage() {
+  const { currentUser, state, redeemReward } = useLms();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const level = getLevelByXp(currentUser.xp);
+  const earnedBadges = getEarnedBadges(currentUser, state.progressRecords, badges);
+  const leaderboard = getLeaderboard(state.users);
+  const departmentRows = Object.entries(
+    state.users.reduce<Record<string, number>>((acc, user) => {
+      acc[user.department] = (acc[user.department] ?? 0) + user.xp;
+      return acc;
+    }, {})
+  ).sort((left, right) => right[1] - left[1]);
+  const userRedemptions = state.rewardRedemptions.filter((item) => item.userId === currentUser.id);
+
   return (
     <div className="page page-grid">
-      <SectionHeader
-        title="Достижения и геймификация"
-        description="баллы XP, уровни, бейджи, личный прогресс и рейтинги сотрудников"
-      />
+      <SectionHeader title="Достижения и геймификация" description="баллы XP, уровни, бейджи, личный прогресс и рейтинги сотрудников" />
 
       <section className="metric-grid">
         <MetricCard label="текущий уровень" value={level.label} note={`${currentUser.xp} XP`} />
@@ -51,13 +57,38 @@ export default function AchievementsPage() {
         </div>
 
         <aside className="card card-pad stack">
-          <SectionHeader title="Магазин поощрений" description="варианты обмена накопленных баллов" />
-          {["фирменный мерч — 450 XP", "дополнительное обучение — 700 XP", "день без встреч — 900 XP"].map((reward) => (
-            <div className="list-item row" key={reward}>
-              <span>{reward}</span>
-              <StatusPill tone="orange">доступно</StatusPill>
+          <SectionHeader title="Магазин поощрений" description="обмен накопленных баллов на заявки" />
+          {rewardItems.map((reward) => {
+            const available = currentUser.xp >= reward.costXp && reward.availableFor.includes(currentUser.role);
+
+            return (
+              <div className="list-item reward-row" key={reward.id}>
+                <div>
+                  <strong>{reward.title}</strong>
+                  <p className="item-text">{reward.description}</p>
+                  <p className="metric-note">{reward.costXp} XP</p>
+                </div>
+                <button className="secondary-button" disabled={!available} onClick={() => redeemReward(reward.id)} type="button">
+                  обменять
+                </button>
+              </div>
+            );
+          })}
+          {userRedemptions.length > 0 ? (
+            <div className="stack">
+              <p className="metric-label">мои заявки</p>
+              {userRedemptions.map((item) => {
+                const reward = rewardItems.find((record) => record.id === item.rewardId);
+
+                return (
+                  <div className="list-item row" key={item.id}>
+                    <span>{reward?.title ?? "награда"}</span>
+                    <StatusPill tone="orange">на согласовании</StatusPill>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          ) : null}
         </aside>
       </section>
 

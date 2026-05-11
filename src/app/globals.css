@@ -125,6 +125,50 @@ button {
   min-width: 0;
 }
 
+.auth-screen {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background:
+    linear-gradient(120deg, rgba(31, 111, 235, 0.08), transparent 34%),
+    linear-gradient(240deg, rgba(40, 169, 133, 0.12), transparent 38%),
+    var(--bg);
+  padding: 28px;
+}
+
+.auth-card {
+  width: min(100%, 520px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card-wide {
+  width: min(100%, 920px);
+}
+
+.auth-intro {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.auth-intro h1,
+.auth-card h1 {
+  margin: 5px 0 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.login-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -148,10 +192,14 @@ button {
   font-size: 13px;
 }
 
+.account-menu,
 .role-switcher {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+}
+
+.role-switcher {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
@@ -308,12 +356,14 @@ button {
 
 .split-grid {
   display: grid;
+  align-items: start;
   grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   gap: 18px;
 }
 
 .stack {
   display: grid;
+  align-content: start;
   gap: 12px;
 }
 
@@ -461,6 +511,24 @@ button {
   font-weight: 800;
 }
 
+.avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.icon-button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+}
+
 .list {
   display: grid;
   gap: 10px;
@@ -534,6 +602,83 @@ button {
   font-weight: 760;
 }
 
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.secondary-button.compact {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.account-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 12px;
+  text-align: left;
+}
+
+.account-card > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.account-card .item-text {
+  display: block;
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+
+.account-card:hover,
+.icon-button:hover,
+.secondary-button:hover {
+  border-color: var(--accent);
+}
+
+.form-error {
+  margin: 0;
+  border-radius: var(--radius);
+  background: #ffecea;
+  color: #a7342f;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.textarea-compact {
+  min-height: 82px;
+}
+
+.reward-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -580,7 +725,8 @@ button {
   .metric-grid,
   .split-grid,
   .course-grid,
-  .module-grid {
+  .module-grid,
+  .login-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -595,7 +741,8 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .role-switcher {
+  .role-switcher,
+  .account-menu {
     width: 100%;
     flex-wrap: wrap;
     border-radius: var(--radius);
@@ -619,5 +766,12 @@ button {
     padding: 9px 6px;
     white-space: normal;
     font-size: 12px;
+  }
+
+  .lesson-item,
+  .leader-row,
+  .account-card,
+  .reward-row {
+    grid-template-columns: 1fr;
   }
 }

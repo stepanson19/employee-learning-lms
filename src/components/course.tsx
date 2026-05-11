@@ -47,7 +47,7 @@ export function CourseCard({ course }: Readonly<{ course: Course }>) {
   );
 }
 
-export function LessonList({ lessons }: Readonly<{ lessons: Lesson[] }>) {
+export function LessonList({ lessons, onComplete }: Readonly<{ lessons: Lesson[]; onComplete?: (lessonId: string) => void }>) {
   return (
     <div className="lesson-list">
       {lessons.map((lesson, index) => {
@@ -62,7 +62,15 @@ export function LessonList({ lessons }: Readonly<{ lessons: Lesson[] }>) {
                 <Icon size={15} /> {lesson.type} · {lesson.durationMinutes} мин
               </p>
             </div>
-            <StatusPill tone={lesson.completed ? "green" : "blue"}>{lesson.completed ? "готово" : "в плане"}</StatusPill>
+            {lesson.completed ? (
+              <StatusPill tone="green">готово</StatusPill>
+            ) : onComplete ? (
+              <button className="secondary-button compact" onClick={() => onComplete(lesson.id)} type="button">
+                отметить
+              </button>
+            ) : (
+              <StatusPill>в плане</StatusPill>
+            )}
           </div>
         );
       })}

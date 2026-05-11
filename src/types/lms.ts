@@ -23,6 +23,20 @@ export interface User {
   notifications: string[];
 }
 
+export interface DemoAccount {
+  userId: string;
+  email: string;
+  passcode: string;
+  label: string;
+}
+
+export interface Session {
+  userId: string;
+  name: string;
+  role: Role;
+  email: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
@@ -82,6 +96,32 @@ export interface Feedback {
   rating: number;
   comment: string;
   createdAt: string;
+}
+
+export interface RewardItem {
+  id: string;
+  title: string;
+  description: string;
+  costXp: number;
+  availableFor: Role[];
+}
+
+export interface RewardRedemption {
+  id: string;
+  userId: string;
+  rewardId: string;
+  costXp: number;
+  createdAt: string;
+  status: "requested" | "approved";
+}
+
+export interface AppState {
+  users: User[];
+  courses: Course[];
+  progressRecords: ProgressRecord[];
+  discussionMessages: DiscussionMessage[];
+  feedbackItems: Feedback[];
+  rewardRedemptions: RewardRedemption[];
 }
 
 export interface LevelInfo {

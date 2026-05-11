@@ -1,17 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { Award, BookOpen, MessageSquareText, TrendingUp, UsersRound } from "lucide-react";
 import { CourseCard } from "@/components/course";
 import { MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
-import { courses, progressRecords, users } from "@/data/lms";
-import { getAnalyticsSummary, getEarnedBadges, getLevelByXp } from "@/lib/lms";
 import { badges } from "@/data/lms";
-
-const currentUser = users.find((user) => user.id === "u-employee") ?? users[0];
-const activeCourseIds = progressRecords.filter((record) => record.userId === currentUser.id && record.status === "active").map((record) => record.courseId);
-const activeCourses = courses.filter((course) => activeCourseIds.includes(course.id));
-const summary = getAnalyticsSummary(users, courses, progressRecords);
-const level = getLevelByXp(currentUser.xp);
-const earnedBadges = getEarnedBadges(currentUser, progressRecords, badges);
+import { useLms } from "@/components/LmsProvider";
+import { getAnalyticsSummary, getEarnedBadges, getLevelByXp } from "@/lib/lms";
 
 const modules = [
   { title: "Контент", text: "курсы, уроки, тесты", href: "/courses", icon: BookOpen },
@@ -22,6 +17,20 @@ const modules = [
 ];
 
 export default function DashboardPage() {
+  const { currentUser, state } = useLms();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const activeCourseIds = state.progressRecords
+    .filter((record) => record.userId === currentUser.id && record.status === "active")
+    .map((record) => record.courseId);
+  const activeCourses = state.courses.filter((course) => activeCourseIds.includes(course.id));
+  const summary = getAnalyticsSummary(state.users, state.courses, state.progressRecords);
+  const level = getLevelByXp(currentUser.xp);
+  const earnedBadges = getEarnedBadges(currentUser, state.progressRecords, badges);
+
   return (
     <div className="page page-grid">
       <SectionHeader
@@ -33,7 +42,7 @@ export default function DashboardPage() {
         <MetricCard label="уровень" value={level.label} note={`${currentUser.xp} XP накоплено`} />
         <MetricCard label="активные курсы" value={currentUser.activeCourses} note="назначены сотруднику" />
         <MetricCard label="бейджи" value={earnedBadges.length} note="получено за обучение" />
-        <MetricCard label="завершение" value={`${summary.completionRate}%`} note="по демо-группе" />
+        <MetricCard label="завершение" value={`${summary.completionRate}%`} note="по группе обучения" />
       </section>
 
       <section className="split-grid">

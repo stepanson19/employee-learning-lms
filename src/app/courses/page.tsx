@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CourseCard } from "@/components/course";
 import { EmptyState, SectionHeader } from "@/components/ui";
-import { courses } from "@/data/lms";
+import { useLms } from "@/components/LmsProvider";
 import { filterCourses } from "@/lib/lms";
 import type { CourseStatus } from "@/types/lms";
 
@@ -20,13 +23,12 @@ function statusLabel(status: "all" | CourseStatus) {
   return labels[status];
 }
 
-export default async function CoursesPage({
-  searchParams
-}: Readonly<{ searchParams: Promise<{ category?: string; status?: CourseStatus }> }>) {
-  const params = await searchParams;
-  const category = params.category ?? "все";
-  const status = params.status ?? "all";
-  const filtered = filterCourses(courses, {
+export default function CoursesPage() {
+  const searchParams = useSearchParams();
+  const { state } = useLms();
+  const category = searchParams.get("category") ?? "все";
+  const status = (searchParams.get("status") as "all" | CourseStatus | null) ?? "all";
+  const filtered = filterCourses(state.courses, {
     category: category === "все" ? undefined : category,
     status: status === "all" ? undefined : status
   });

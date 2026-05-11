@@ -1,21 +1,38 @@
+"use client";
+
+import { FormEvent, useMemo, useState } from "react";
 import { Send } from "lucide-react";
 import { SectionHeader, StatusPill } from "@/components/ui";
-import { courses, discussionMessages, feedbackItems, users } from "@/data/lms";
-
-const averageRating = Math.round((feedbackItems.reduce((sum, item) => sum + item.rating, 0) / feedbackItems.length) * 10) / 10;
+import { useLms } from "@/components/LmsProvider";
 
 export default function FeedbackPage() {
+  const { currentUser, state, submitFeedback } = useLms();
+  const [courseId, setCourseId] = useState("c-onboarding");
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("курс помог быстрее разобраться в рабочем процессе");
+  const averageRating = useMemo(
+    () => Math.round((state.feedbackItems.reduce((sum, item) => sum + item.rating, 0) / Math.max(state.feedbackItems.length, 1)) * 10) / 10,
+    [state.feedbackItems]
+  );
+
+  if (!currentUser) {
+    return null;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    submitFeedback({ courseId, rating, comment });
+    setComment("");
+  }
+
   return (
     <div className="page page-grid">
-      <SectionHeader
-        title="Коммуникации и обратная связь"
-        description="обсуждения учебных материалов, комментарии сотрудников, опросы и оценка качества обучения"
-      />
+      <SectionHeader title="Коммуникации и обратная связь" description="обсуждения учебных материалов, комментарии сотрудников, опросы и оценка качества обучения" />
 
       <section className="metric-grid">
         <div className="metric-card">
           <p className="metric-label">сообщения</p>
-          <p className="metric-value">{discussionMessages.length}</p>
+          <p className="metric-value">{state.discussionMessages.length}</p>
           <p className="metric-note">в обсуждениях курсов</p>
         </div>
         <div className="metric-card">
@@ -25,12 +42,12 @@ export default function FeedbackPage() {
         </div>
         <div className="metric-card">
           <p className="metric-label">отзывы</p>
-          <p className="metric-value">{feedbackItems.length}</p>
+          <p className="metric-value">{state.feedbackItems.length}</p>
           <p className="metric-note">после прохождения курсов</p>
         </div>
         <div className="metric-card">
           <p className="metric-label">курсы</p>
-          <p className="metric-value">{courses.length}</p>
+          <p className="metric-value">{state.courses.length}</p>
           <p className="metric-note">доступны для обсуждения</p>
         </div>
       </section>
@@ -38,9 +55,9 @@ export default function FeedbackPage() {
       <section className="split-grid">
         <div className="card card-pad stack">
           <SectionHeader title="Обсуждения курсов" />
-          {discussionMessages.map((message) => {
-            const author = users.find((user) => user.id === message.authorId);
-            const course = courses.find((item) => item.id === message.courseId);
+          {state.discussionMessages.map((message) => {
+            const author = state.users.find((user) => user.id === message.authorId);
+            const course = state.courses.find((item) => item.id === message.courseId);
 
             return (
               <div className="list-item" key={message.id}>
@@ -57,11 +74,11 @@ export default function FeedbackPage() {
 
         <aside className="card card-pad stack">
           <SectionHeader title="Оценка курса" description="форма обратной связи после обучения" />
-          <form className="form-grid">
+          <form className="form-grid" onSubmit={handleSubmit}>
             <label>
               <span className="metric-label">курс</span>
-              <select className="select" defaultValue="c-onboarding">
-                {courses.map((course) => (
+              <select className="select" onChange={(event) => setCourseId(event.target.value)} value={courseId}>
+                {state.courses.map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.title}
                   </option>
@@ -70,7 +87,7 @@ export default function FeedbackPage() {
             </label>
             <label>
               <span className="metric-label">оценка</span>
-              <select className="select" defaultValue="5">
+              <select className="select" onChange={(event) => setRating(Number(event.target.value))} value={rating}>
                 <option value="5">5 — отлично</option>
                 <option value="4">4 — хорошо</option>
                 <option value="3">3 — нужно улучшить</option>
@@ -78,9 +95,9 @@ export default function FeedbackPage() {
             </label>
             <label>
               <span className="metric-label">комментарий</span>
-              <textarea className="textarea" defaultValue="курс помог быстрее разобраться в рабочем процессе" suppressHydrationWarning />
+              <textarea className="textarea" onChange={(event) => setComment(event.target.value)} value={comment} />
             </label>
-            <button className="primary-button" type="button">
+            <button className="primary-button" type="submit">
               <Send size={16} />
               отправить отзыв
             </button>
@@ -91,9 +108,9 @@ export default function FeedbackPage() {
       <section className="card card-pad">
         <SectionHeader title="Последние отзывы" />
         <div className="stack">
-          {feedbackItems.map((item) => {
-            const course = courses.find((record) => record.id === item.courseId);
-            const user = users.find((record) => record.id === item.userId);
+          {state.feedbackItems.map((item) => {
+            const course = state.courses.find((record) => record.id === item.courseId);
+            const user = state.users.find((record) => record.id === item.userId);
 
             return (
               <div className="list-item" key={item.id}>

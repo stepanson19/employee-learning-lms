@@ -1,8 +1,9 @@
+"use client";
+
 import { MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
-import { courses, progressRecords, users } from "@/data/lms";
+import { useLms } from "@/components/LmsProvider";
 import { getAnalyticsSummary } from "@/lib/lms";
 
-const summary = getAnalyticsSummary(users, courses, progressRecords);
 const statusLabels = {
   draft: "черновик",
   review: "на проверке",
@@ -10,24 +11,23 @@ const statusLabels = {
   archived: "архив"
 } as const;
 
-const departmentStats = users.map((user) => {
-  const records = progressRecords.filter((record) => record.userId === user.id);
-  const average = Math.round(records.reduce((sum, record) => sum + record.percent, 0) / Math.max(records.length, 1));
-
-  return {
-    user,
-    average,
-    records
-  };
-});
-
 export default function AnalyticsPage() {
+  const { state } = useLms();
+  const summary = getAnalyticsSummary(state.users, state.courses, state.progressRecords);
+  const departmentStats = state.users.map((user) => {
+    const records = state.progressRecords.filter((record) => record.userId === user.id);
+    const average = Math.round(records.reduce((sum, record) => sum + record.percent, 0) / Math.max(records.length, 1));
+
+    return {
+      user,
+      average,
+      records
+    };
+  });
+
   return (
     <div className="page page-grid">
-      <SectionHeader
-        title="Аналитика и отчетность"
-        description="дашборд HR/руководителя: прогресс сотрудников, результаты тестов, сроки и вовлеченность"
-      />
+      <SectionHeader title="Аналитика и отчетность" description="дашборд HR/руководителя: прогресс сотрудников, результаты тестов, сроки и вовлеченность" />
 
       <section className="metric-grid">
         <MetricCard label="завершение" value={`${summary.completionRate}%`} note="по всем прохождениям" />
@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
       </section>
 
       <section className="split-grid">
-        <div className="card card-pad">
+        <div className="card card-pad table-card">
           <SectionHeader title="Прогресс сотрудников" description="сводка по пользователям и назначенным курсам" />
           <table className="table">
             <thead>
@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
         </aside>
       </section>
 
-      <section className="card card-pad">
+      <section className="card card-pad table-card">
         <SectionHeader title="Отчет по курсам" description="данные для контроля HR и руководителя" />
         <table className="table">
           <thead>
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
             </tr>
           </thead>
           <tbody>
-            {courses.map((course) => (
+            {state.courses.map((course) => (
               <tr key={course.id}>
                 <td>{course.title}</td>
                 <td>{course.category}</td>
