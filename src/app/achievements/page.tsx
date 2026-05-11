@@ -23,6 +23,7 @@ export default function AchievementsPage() {
     }, {})
   ).sort((left, right) => right[1] - left[1]);
   const userRedemptions = state.rewardRedemptions.filter((item) => item.userId === currentUser.id);
+  const xpHistory = state.xpTransactions.filter((item) => item.userId === currentUser.id).slice(-6).reverse();
 
   return (
     <div className="page page-grid">
@@ -83,7 +84,7 @@ export default function AchievementsPage() {
                 return (
                   <div className="list-item row" key={item.id}>
                     <span>{reward?.title ?? "награда"}</span>
-                    <StatusPill tone="orange">на согласовании</StatusPill>
+                    <StatusPill tone={item.status === "approved" ? "green" : "orange"}>{item.status === "approved" ? "одобрено" : "на согласовании"}</StatusPill>
                   </div>
                 );
               })}
@@ -123,6 +124,32 @@ export default function AchievementsPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="card card-pad table-card">
+        <SectionHeader title="Журнал XP" description="история начислений и списаний баллов текущего пользователя" />
+        <table className="table">
+          <thead>
+            <tr>
+              <th>дата</th>
+              <th>операция</th>
+              <th>изменение</th>
+            </tr>
+          </thead>
+          <tbody>
+            {xpHistory.map((transaction) => (
+              <tr key={transaction.id}>
+                <td>{transaction.createdAt}</td>
+                <td>{transaction.description}</td>
+                <td>
+                  <StatusPill tone={transaction.amount > 0 ? "green" : "orange"}>
+                    {transaction.amount > 0 ? `+${transaction.amount}` : transaction.amount} XP
+                  </StatusPill>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
     </div>
   );

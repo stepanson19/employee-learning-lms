@@ -133,6 +133,30 @@ export interface QuizResult {
   passed: boolean;
 }
 
+export type AssignmentStatus = "active" | "completed" | "overdue";
+
+export interface CourseAssignment {
+  id: string;
+  userId: string;
+  courseId: string;
+  assignedById: string;
+  dueDate: string;
+  assignedAt: string;
+  status: AssignmentStatus;
+}
+
+export type XpSourceType = "course-completion" | "reward-redemption" | "manual-adjustment";
+
+export interface XpTransaction {
+  id: string;
+  userId: string;
+  amount: number;
+  sourceType: XpSourceType;
+  sourceId: string;
+  description: string;
+  createdAt: string;
+}
+
 export interface RewardItem {
   id: string;
   title: string;
@@ -159,6 +183,8 @@ export interface AppState {
   rewardRedemptions: RewardRedemption[];
   quizQuestions: QuizQuestion[];
   quizAttempts: QuizAttempt[];
+  courseAssignments: CourseAssignment[];
+  xpTransactions: XpTransaction[];
 }
 
 export interface LevelInfo {
@@ -182,4 +208,15 @@ export interface CourseFilters {
   status?: CourseStatus;
   difficulty?: Difficulty;
   query?: string;
+}
+
+export interface AnalyticsFilters {
+  department?: string;
+  courseId?: string;
+}
+
+export interface AnalyticsRow {
+  user: User;
+  course: Course;
+  record: ProgressRecord;
 }

@@ -6,18 +6,34 @@ import type { AppState, Feedback, Session } from "@/types/lms";
 import { authenticateUser } from "@/lib/auth";
 import {
   addDiscussionMessage as addDiscussionMessageToState,
+  assignCourse as assignCourseToState,
   completeLesson as completeLessonInState,
+  createCourse as createCourseInState,
   createInitialAppState,
   redeemReward as redeemRewardInState,
   submitQuizAttempt as submitQuizAttemptToState,
   addQuizQuestion as addQuizQuestionToState,
   submitFeedback as submitFeedbackToState
 } from "@/lib/state";
-import type { QuizOption } from "@/types/lms";
+import type { Difficulty, LessonType, QuizOption } from "@/types/lms";
 
 type LoginResult = { ok: true } | { ok: false; message: string };
 
 type FeedbackInput = Pick<Feedback, "courseId" | "rating" | "comment">;
+
+type CourseDraftInput = {
+  title: string;
+  description: string;
+  category: string;
+  difficulty: Difficulty;
+  deadline: string;
+  xpReward: number;
+  lessons: Array<{
+    title: string;
+    type: LessonType;
+    durationMinutes: number;
+  }>;
+};
 
 interface LmsContextValue {
   hydrated: boolean;
@@ -30,6 +46,8 @@ interface LmsContextValue {
   submitFeedback: (input: FeedbackInput) => void;
   addDiscussionMessage: (courseId: string, text: string) => void;
   redeemReward: (rewardId: string) => void;
+  createCourse: (input: CourseDraftInput) => void;
+  assignCourse: (input: { userId: string; courseId: string; dueDate: string }) => void;
   submitQuizAttempt: (courseId: string, lessonId: string, answers: Record<string, string>) => void;
   addQuizQuestion: (input: {
     courseId: string;
@@ -70,7 +88,9 @@ function loadStoredState(): AppState {
           ...parsedState,
           quizQuestions: parsedState.quizQuestions ?? initialState.quizQuestions,
           quizAttempts: parsedState.quizAttempts ?? initialState.quizAttempts,
-          rewardRedemptions: parsedState.rewardRedemptions ?? initialState.rewardRedemptions
+          rewardRedemptions: parsedState.rewardRedemptions ?? initialState.rewardRedemptions,
+          courseAssignments: parsedState.courseAssignments ?? initialState.courseAssignments,
+          xpTransactions: parsedState.xpTransactions ?? initialState.xpTransactions
         }
       : initialState;
   } catch {
@@ -189,6 +209,26 @@ export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
         }
 
         setState((current) => redeemRewardInState(current, session.userId, rewardId, today()));
+      },
+      createCourse(input) {
+        if (!session || session.role !== "author") {
+          return;
+        }
+
+        setState((current) => createCourseInState(current, { ...input, authorId: session.userId }));
+      },
+      assignCourse(input) {
+        if (!session || (session.role !== "hr" && session.role !== "author")) {
+          return;
+        }
+
+        setState((current) =>
+          assignCourseToState(current, {
+            ...input,
+            assignedById: session.userId,
+            assignedAt: today()
+          })
+        );
       },
       submitQuizAttempt(courseId, lessonId, answers) {
         if (!session) {

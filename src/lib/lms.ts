@@ -1,4 +1,15 @@
-import type { AnalyticsSummary, Badge, Course, CourseFilters, Lesson, LevelInfo, ProgressRecord, User } from "@/types/lms";
+import type {
+  AnalyticsFilters,
+  AnalyticsRow,
+  AnalyticsSummary,
+  Badge,
+  Course,
+  CourseFilters,
+  Lesson,
+  LevelInfo,
+  ProgressRecord,
+  User
+} from "@/types/lms";
 
 const levels = [
   { label: "новичок", minXp: 0 },
@@ -78,6 +89,37 @@ export function getAnalyticsSummary(users: User[], courses: Course[], progress: 
     totalTimeHours: Math.round((totalTime / 60) * 10) / 10,
     engagementRate: Math.round((progress.length / engagementBase) * 100)
   };
+}
+
+export function getAnalyticsRows(users: User[], courses: Course[], progress: ProgressRecord[], filters: AnalyticsFilters = {}): AnalyticsRow[] {
+  return progress
+    .map((record) => {
+      const user = users.find((item) => item.id === record.userId);
+      const course = courses.find((item) => item.id === record.courseId);
+
+      return user && course ? { user, course, record } : null;
+    })
+    .filter((row): row is AnalyticsRow => Boolean(row))
+    .filter((row) => {
+      const matchesDepartment = filters.department ? row.user.department === filters.department : true;
+      const matchesCourse = filters.courseId ? row.course.id === filters.courseId : true;
+
+      return matchesDepartment && matchesCourse;
+    });
+}
+
+function csvCell(value: string | number): string {
+  const text = String(value);
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+export function exportAnalyticsCsv(rows: AnalyticsRow[]): string {
+  const header = ["employee", "department", "course", "progress", "score", "status"];
+  const body = rows.map((row) =>
+    [row.user.name, row.user.department, row.course.title, row.record.percent, row.record.score, row.record.status].map(csvCell).join(",")
+  );
+
+  return [header.join(","), ...body].join("\n");
 }
 
 export function filterCourses(courses: Course[], filters: CourseFilters): Course[] {

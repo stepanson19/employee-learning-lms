@@ -1,8 +1,9 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
 import { useLms } from "@/components/LmsProvider";
-import { getAnalyticsSummary } from "@/lib/lms";
+import { exportAnalyticsCsv, getAnalyticsRows, getAnalyticsSummary } from "@/lib/lms";
 
 const statusLabels = {
   draft: "черновик",
@@ -13,9 +14,21 @@ const statusLabels = {
 
 export default function AnalyticsPage() {
   const { state } = useLms();
-  const summary = getAnalyticsSummary(state.users, state.courses, state.progressRecords);
-  const departmentStats = state.users.map((user) => {
-    const records = state.progressRecords.filter((record) => record.userId === user.id);
+  const [department, setDepartment] = useState("all");
+  const [courseId, setCourseId] = useState("all");
+  const departments = Array.from(new Set(state.users.map((user) => user.department)));
+  const rows = getAnalyticsRows(state.users, state.courses, state.progressRecords, {
+    department: department === "all" ? undefined : department,
+    courseId: courseId === "all" ? undefined : courseId
+  });
+  const summary = getAnalyticsSummary(
+    department === "all" ? state.users : state.users.filter((user) => user.department === department),
+    state.courses,
+    rows.map((row) => row.record)
+  );
+  const csvHref = useMemo(() => `data:text/csv;charset=utf-8,${encodeURIComponent(exportAnalyticsCsv(rows))}`, [rows]);
+  const departmentStats = (department === "all" ? state.users : state.users.filter((user) => user.department === department)).map((user) => {
+    const records = rows.filter((row) => row.user.id === user.id).map((row) => row.record);
     const average = Math.round(records.reduce((sum, record) => sum + record.percent, 0) / Math.max(records.length, 1));
 
     return {
@@ -27,7 +40,42 @@ export default function AnalyticsPage() {
 
   return (
     <div className="page page-grid">
-      <SectionHeader title="Аналитика и отчетность" description="дашборд HR/руководителя: прогресс сотрудников, результаты тестов, сроки и вовлеченность" />
+      <SectionHeader
+        title="Аналитика и отчетность"
+        description="дашборд HR/руководителя: прогресс сотрудников, результаты тестов, сроки и вовлеченность"
+        action={
+          <a className="secondary-button" download="learnhub-analytics.csv" href={csvHref}>
+            выгрузить CSV
+          </a>
+        }
+      />
+
+      <section className="card card-pad">
+        <div className="toolbar-row">
+          <label>
+            <span className="metric-label">отдел</span>
+            <select className="select" onChange={(event) => setDepartment(event.target.value)} value={department}>
+              <option value="all">все отделы</option>
+              {departments.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span className="metric-label">курс</span>
+            <select className="select" onChange={(event) => setCourseId(event.target.value)} value={courseId}>
+              <option value="all">все курсы</option>
+              {state.courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
 
       <section className="metric-grid">
         <MetricCard label="завершение" value={`${summary.completionRate}%`} note="по всем прохождениям" />
@@ -38,7 +86,7 @@ export default function AnalyticsPage() {
 
       <section className="split-grid">
         <div className="card card-pad table-card">
-          <SectionHeader title="Прогресс сотрудников" description="сводка по пользователям и назначенным курсам" />
+          <SectionHeader title="Прогресс сотрудников" description="сводка по пользователям и назначенным курсам с учетом фильтров" />
           <table className="table">
             <thead>
               <tr>
@@ -71,12 +119,12 @@ export default function AnalyticsPage() {
           <SectionHeader title="Вовлеченность" description="как сотрудники взаимодействуют с обучением" />
           <ProgressBar label="активность по опубликованным курсам" value={summary.engagementRate} />
           <div className="list-item">
-            <strong>лучший курс</strong>
-            <p className="item-text">Быстрый старт сотрудника — самый высокий прогресс</p>
+            <strong>прохождений в отчете</strong>
+            <p className="item-text">{rows.length} записей после фильтрации</p>
           </div>
           <div className="list-item">
-            <strong>зона внимания</strong>
-            <p className="item-text">курс по безопасности требует напоминаний для поддержки</p>
+            <strong>активные назначения</strong>
+            <p className="item-text">{state.courseAssignments.filter((assignment) => assignment.status === "active").length} курсов ожидают завершения</p>
           </div>
         </aside>
       </section>
@@ -94,7 +142,7 @@ export default function AnalyticsPage() {
             </tr>
           </thead>
           <tbody>
-            {state.courses.map((course) => (
+            {state.courses.filter((course) => (courseId === "all" ? true : course.id === courseId)).map((course) => (
               <tr key={course.id}>
                 <td>{course.title}</td>
                 <td>{course.category}</td>

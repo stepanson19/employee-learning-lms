@@ -17,7 +17,12 @@ export default function ProfilePage() {
   const level = getLevelByXp(currentUser.xp);
   const earnedBadges = getEarnedBadges(currentUser, state.progressRecords, badges);
   const userProgress = state.progressRecords.filter((record) => record.userId === currentUser.id);
-  const assignedCourses = state.courses.filter((course) => userProgress.some((record) => record.courseId === course.id));
+  const assignedCourseIds = new Set([
+    ...userProgress.map((record) => record.courseId),
+    ...state.courseAssignments.filter((assignment) => assignment.userId === currentUser.id).map((assignment) => assignment.courseId)
+  ]);
+  const assignedCourses = state.courses.filter((course) => assignedCourseIds.has(course.id));
+  const xpHistory = state.xpTransactions.filter((transaction) => transaction.userId === currentUser.id).slice(-5).reverse();
 
   return (
     <div className="page page-grid">
@@ -84,6 +89,23 @@ export default function ProfilePage() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="card card-pad stack">
+            <SectionHeader title="История XP" />
+            {xpHistory.length > 0 ? (
+              xpHistory.map((transaction) => (
+                <div className="list-item row" key={transaction.id}>
+                  <div>
+                    <strong>{transaction.amount > 0 ? `+${transaction.amount}` : transaction.amount} XP</strong>
+                    <p className="item-text">{transaction.description}</p>
+                  </div>
+                  <span className="muted">{transaction.createdAt}</span>
+                </div>
+              ))
+            ) : (
+              <p className="item-text">операций с XP пока нет</p>
+            )}
           </div>
         </aside>
       </section>

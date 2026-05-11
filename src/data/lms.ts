@@ -1,4 +1,16 @@
-import type { Badge, Course, DemoAccount, DiscussionMessage, Feedback, ProgressRecord, QuizQuestion, RewardItem, User } from "@/types/lms";
+import type {
+  Badge,
+  Course,
+  CourseAssignment,
+  DemoAccount,
+  DiscussionMessage,
+  Feedback,
+  ProgressRecord,
+  QuizQuestion,
+  RewardItem,
+  User,
+  XpTransaction
+} from "@/types/lms";
 
 export const users: User[] = [
   {
@@ -178,6 +190,57 @@ export const progressRecords: ProgressRecord[] = [
   { userId: "u-hr", courseId: "c-management", completedLessons: 3, totalLessons: 3, percent: 100, score: 91, timeSpentMinutes: 146, status: "completed", updatedAt: "2026-05-08" },
   { userId: "u-author", courseId: "c-product", completedLessons: 2, totalLessons: 3, percent: 67, score: 84, timeSpentMinutes: 73, status: "active", updatedAt: "2026-05-07" },
   { userId: "u-support", courseId: "c-security", completedLessons: 1, totalLessons: 3, percent: 33, score: 76, timeSpentMinutes: 28, status: "overdue", updatedAt: "2026-05-06" }
+];
+
+export const courseAssignments: CourseAssignment[] = [
+  {
+    id: "ca-1",
+    userId: "u-employee",
+    courseId: "c-onboarding",
+    assignedById: "u-hr",
+    dueDate: "2026-05-18",
+    assignedAt: "2026-05-01",
+    status: "active"
+  },
+  {
+    id: "ca-2",
+    userId: "u-employee",
+    courseId: "c-sales",
+    assignedById: "u-hr",
+    dueDate: "2026-05-21",
+    assignedAt: "2026-05-02",
+    status: "active"
+  },
+  {
+    id: "ca-3",
+    userId: "u-support",
+    courseId: "c-security",
+    assignedById: "u-hr",
+    dueDate: "2026-05-25",
+    assignedAt: "2026-05-03",
+    status: "overdue"
+  }
+];
+
+export const xpTransactions: XpTransaction[] = [
+  {
+    id: "xp-1",
+    userId: "u-employee",
+    amount: 160,
+    sourceType: "course-completion",
+    sourceId: "c-security",
+    description: "завершен курс «Информационная безопасность»",
+    createdAt: "2026-05-04"
+  },
+  {
+    id: "xp-2",
+    userId: "u-support",
+    amount: 120,
+    sourceType: "course-completion",
+    sourceId: "c-onboarding",
+    description: "завершен вводный курс",
+    createdAt: "2026-05-05"
+  }
 ];
 
 export const discussionMessages: DiscussionMessage[] = [

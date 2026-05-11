@@ -571,6 +571,17 @@ button {
   gap: 12px;
 }
 
+.form-columns,
+.toolbar-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.toolbar-row {
+  align-items: end;
+}
+
 .input,
 .textarea,
 .select {
@@ -758,6 +769,8 @@ button {
 
   .metric-grid,
   .split-grid,
+  .form-columns,
+  .toolbar-row,
   .course-grid,
   .module-grid,
   .login-grid {

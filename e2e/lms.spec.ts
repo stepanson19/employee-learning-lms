@@ -80,6 +80,31 @@ test.describe("full lms app", () => {
     await expect(page.getByText("Как фиксировать итог разговора?")).toBeVisible();
   });
 
+  test("lets an author create a draft course", async ({ page }) => {
+    await login(page, "author@learnhub.local", "author2026");
+    await page.goto("/courses");
+    await page.getByLabel("название курса").fill("Service Quality");
+    await page.getByLabel("описание курса").fill("Практика контроля качества обслуживания клиентов.");
+    await page.getByLabel("категория курса").fill("сервис");
+    await page.getByLabel("урок 1").fill("стандарты сервиса");
+    await page.getByLabel("урок 2").fill("практический разбор");
+    await page.getByRole("button", { name: "создать курс" }).click();
+
+    await expect(page.getByRole("heading", { name: "Service Quality" })).toBeVisible();
+    await expect(page.getByText("черновик").last()).toBeVisible();
+  });
+
+  test("lets HR assign a course to an employee", async ({ page }) => {
+    await login(page, "hr@learnhub.local", "hr2026");
+    await page.goto("/courses");
+    await page.getByLabel("выбор сотрудника").selectOption("u-support");
+    await page.getByLabel("выбор курса").selectOption("c-sales");
+    await page.getByLabel("срок назначения").fill("2026-06-01");
+    await page.getByRole("button", { name: "назначить курс" }).click();
+
+    await expect(page.locator(".list-item").filter({ hasText: "Алена Сергеева" }).filter({ hasText: "Продажи без потери качества · до 2026-06-01" }).first()).toBeVisible();
+  });
+
   test("submits feedback from the signed-in user", async ({ page }) => {
     await login(page);
     await page.goto("/feedback");
