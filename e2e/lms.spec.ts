@@ -18,9 +18,13 @@ async function login(page: Page, email = "danil@learnhub.local", passcode = "emp
 }
 
 test.describe("full lms app", () => {
+  test.describe.configure({ mode: "serial" });
+
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
+    const resetResponse = page.waitForResponse((response) => response.url().includes("/api/lms/state") && response.request().method() === "DELETE");
     await page.getByRole("button", { name: "сбросить демо-данные" }).click();
+    await resetResponse;
   });
 
   test("requires sign in before opening the platform", async ({ page }) => {
@@ -66,6 +70,23 @@ test.describe("full lms app", () => {
     await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
     await page.reload();
     await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
+  });
+
+  test("restores updated progress from the server state API", async ({ page }) => {
+    await login(page);
+    await page.goto("/courses/onboarding");
+    await page.getByLabel("в библиотеке знаний платформы").check();
+    await page.getByLabel("обновляется прогресс и начисляются XP").check();
+    const saveResponse = page.waitForResponse((response) => response.url().includes("/api/lms/state") && response.request().method() === "PUT");
+    await page.getByRole("button", { name: "проверить тест" }).click();
+    await saveResponse;
+
+    await page.evaluate(() => window.localStorage.clear());
+    await login(page);
+    await page.goto("/courses/onboarding");
+
+    await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("результат 100%")).toBeVisible();
   });
 
   test("lets an author add a quiz question", async ({ page }) => {

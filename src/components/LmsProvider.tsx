@@ -35,6 +35,8 @@ type CourseDraftInput = {
   }>;
 };
 
+type StateApiResponse = { ok: true; data: Partial<AppState> } | { ok: false; error: string };
+
 interface LmsContextValue {
   hydrated: boolean;
   session: Session | null;
@@ -71,30 +73,39 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function loadStoredState(): AppState {
+function withStateDefaults(parsedState: Partial<AppState> | null): AppState {
   const initialState = createInitialAppState();
 
+  return parsedState
+    ? {
+        ...initialState,
+        ...parsedState,
+        users: parsedState.users ?? initialState.users,
+        courses: parsedState.courses ?? initialState.courses,
+        progressRecords: parsedState.progressRecords ?? initialState.progressRecords,
+        discussionMessages: parsedState.discussionMessages ?? initialState.discussionMessages,
+        feedbackItems: parsedState.feedbackItems ?? initialState.feedbackItems,
+        quizQuestions: parsedState.quizQuestions ?? initialState.quizQuestions,
+        quizAttempts: parsedState.quizAttempts ?? initialState.quizAttempts,
+        rewardRedemptions: parsedState.rewardRedemptions ?? initialState.rewardRedemptions,
+        courseAssignments: parsedState.courseAssignments ?? initialState.courseAssignments,
+        xpTransactions: parsedState.xpTransactions ?? initialState.xpTransactions
+      }
+    : initialState;
+}
+
+function loadStoredState(): AppState {
   if (typeof window === "undefined") {
-    return initialState;
+    return createInitialAppState();
   }
 
   try {
     const rawState = window.localStorage.getItem(storageKeys.state);
     const parsedState = rawState ? (JSON.parse(rawState) as Partial<AppState>) : null;
 
-    return parsedState
-      ? {
-          ...initialState,
-          ...parsedState,
-          quizQuestions: parsedState.quizQuestions ?? initialState.quizQuestions,
-          quizAttempts: parsedState.quizAttempts ?? initialState.quizAttempts,
-          rewardRedemptions: parsedState.rewardRedemptions ?? initialState.rewardRedemptions,
-          courseAssignments: parsedState.courseAssignments ?? initialState.courseAssignments,
-          xpTransactions: parsedState.xpTransactions ?? initialState.xpTransactions
-        }
-      : initialState;
+    return withStateDefaults(parsedState);
   } catch {
-    return initialState;
+    return createInitialAppState();
   }
 }
 
@@ -111,15 +122,63 @@ function loadStoredSession(): Session | null {
   }
 }
 
+async function fetchServerState(): Promise<AppState | null> {
+  try {
+    const response = await fetch("/api/lms/state", { cache: "no-store" });
+    const payload = (await response.json()) as StateApiResponse;
+
+    return response.ok && payload.ok ? withStateDefaults(payload.data) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function persistServerState(state: AppState): Promise<void> {
+  try {
+    await fetch("/api/lms/state", {
+      body: JSON.stringify({ state }),
+      headers: { "Content-Type": "application/json" },
+      method: "PUT"
+    });
+  } catch {
+    // server persistence is best-effort; localStorage remains the offline fallback
+  }
+}
+
+async function resetServerState(): Promise<void> {
+  try {
+    await fetch("/api/lms/state", { method: "DELETE" });
+  } catch {
+    // server persistence is best-effort; local reset still applies immediately
+  }
+}
+
 export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [hydrated, setHydrated] = useState(false);
   const [state, setState] = useState<AppState>(() => createInitialAppState());
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    setState(loadStoredState());
-    setSession(loadStoredSession());
-    setHydrated(true);
+    let cancelled = false;
+
+    async function hydrate() {
+      const storedState = loadStoredState();
+      const serverState = await fetchServerState();
+
+      if (cancelled) {
+        return;
+      }
+
+      setState(serverState ?? storedState);
+      setSession(loadStoredSession());
+      setHydrated(true);
+    }
+
+    void hydrate();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -128,6 +187,7 @@ export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
     }
 
     window.localStorage.setItem(storageKeys.state, JSON.stringify(state));
+    void persistServerState(state);
   }, [hydrated, state]);
 
   useEffect(() => {
@@ -250,6 +310,7 @@ export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
         setSession(null);
         window.localStorage.removeItem(storageKeys.state);
         window.localStorage.removeItem(storageKeys.session);
+        void resetServerState();
       }
     }),
     [currentUser, hydrated, session, state]
