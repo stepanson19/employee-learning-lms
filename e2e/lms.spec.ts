@@ -55,14 +55,29 @@ test.describe("full lms app", () => {
     await expect(page.getByRole("heading", { name: "Аналитика и отчетность" })).toBeVisible();
   });
 
-  test("completes a lesson and persists updated progress", async ({ page }) => {
+  test("passes a quiz and persists updated progress", async ({ page }) => {
     await login(page);
     await page.goto("/courses/onboarding");
-    await page.getByRole("button", { name: "отметить" }).click();
+    await page.getByLabel("в библиотеке знаний платформы").check();
+    await page.getByLabel("обновляется прогресс и начисляются XP").check();
+    await page.getByRole("button", { name: "проверить тест" }).click();
 
+    await expect(page.getByText("результат 100%")).toBeVisible();
     await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
     await page.reload();
     await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
+  });
+
+  test("lets an author add a quiz question", async ({ page }) => {
+    await login(page, "author@learnhub.local", "author2026");
+    await page.goto("/courses/sales");
+    await page.getByLabel("вопрос").fill("Как фиксировать итог разговора?");
+    await page.getByRole("textbox", { name: "вариант 1" }).fill("оставить заметку в CRM");
+    await page.getByRole("textbox", { name: "вариант 2" }).fill("ничего не сохранять");
+    await page.getByRole("textbox", { name: "пояснение" }).fill("итог должен быть доступен команде");
+    await page.getByRole("button", { name: "добавить вопрос" }).click();
+
+    await expect(page.getByText("Как фиксировать итог разговора?")).toBeVisible();
   });
 
   test("submits feedback from the signed-in user", async ({ page }) => {

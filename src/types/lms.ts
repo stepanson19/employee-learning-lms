@@ -98,6 +98,41 @@ export interface Feedback {
   createdAt: string;
 }
 
+export interface QuizOption {
+  id: string;
+  text: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  prompt: string;
+  options: QuizOption[];
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface QuizAttempt {
+  id: string;
+  userId: string;
+  courseId: string;
+  lessonId: string;
+  answers: Record<string, string>;
+  correctAnswers: number;
+  totalQuestions: number;
+  score: number;
+  passed: boolean;
+  createdAt: string;
+}
+
+export interface QuizResult {
+  correctAnswers: number;
+  totalQuestions: number;
+  score: number;
+  passed: boolean;
+}
+
 export interface RewardItem {
   id: string;
   title: string;
@@ -122,6 +157,8 @@ export interface AppState {
   discussionMessages: DiscussionMessage[];
   feedbackItems: Feedback[];
   rewardRedemptions: RewardRedemption[];
+  quizQuestions: QuizQuestion[];
+  quizAttempts: QuizAttempt[];
 }
 
 export interface LevelInfo {

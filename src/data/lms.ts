@@ -1,4 +1,4 @@
-import type { Badge, Course, DemoAccount, DiscussionMessage, Feedback, ProgressRecord, RewardItem, User } from "@/types/lms";
+import type { Badge, Course, DemoAccount, DiscussionMessage, Feedback, ProgressRecord, QuizQuestion, RewardItem, User } from "@/types/lms";
 
 export const users: User[] = [
   {
@@ -193,6 +193,48 @@ export const feedbackItems: Feedback[] = [
   { id: "f-2", courseId: "c-sales", userId: "u-employee", rating: 4, comment: "хочется больше практических диалогов", createdAt: "2026-05-09" },
   { id: "f-3", courseId: "c-security", userId: "u-support", rating: 4, comment: "полезно, но нужен чек-лист", createdAt: "2026-05-08" },
   { id: "f-4", courseId: "c-management", userId: "u-hr", rating: 5, comment: "подходит для руководителей отделов", createdAt: "2026-05-07" }
+];
+
+export const quizQuestions: QuizQuestion[] = [
+  {
+    id: "q-on-1",
+    courseId: "c-onboarding",
+    lessonId: "l-on-4",
+    prompt: "Где сотрудник должен искать актуальные рабочие регламенты?",
+    options: [
+      { id: "a-on-1", text: "в библиотеке знаний платформы" },
+      { id: "a-on-2", text: "в личных заметках коллег" },
+      { id: "a-on-3", text: "только у руководителя отдела" }
+    ],
+    correctOptionId: "a-on-1",
+    explanation: "регламенты и инструкции должны храниться централизованно в библиотеке знаний"
+  },
+  {
+    id: "q-on-2",
+    courseId: "c-onboarding",
+    lessonId: "l-on-4",
+    prompt: "Что происходит после успешного завершения курса?",
+    options: [
+      { id: "a-on-4", text: "обновляется прогресс и начисляются XP" },
+      { id: "a-on-5", text: "курс удаляется из платформы" },
+      { id: "a-on-6", text: "сотрудник теряет доступ к материалам" }
+    ],
+    correctOptionId: "a-on-4",
+    explanation: "LMS фиксирует результат обучения и обновляет игровые показатели сотрудника"
+  },
+  {
+    id: "q-sa-1",
+    courseId: "c-sales",
+    lessonId: "l-sa-4",
+    prompt: "С чего начинается работа с возражением клиента?",
+    options: [
+      { id: "a-sa-1", text: "с уточнения причины сомнения" },
+      { id: "a-sa-2", text: "с немедленной скидки" },
+      { id: "a-sa-3", text: "с завершения диалога" }
+    ],
+    correctOptionId: "a-sa-1",
+    explanation: "сначала нужно понять контекст и только потом предлагать решение"
+  }
 ];
 
 export const rewardItems: RewardItem[] = [

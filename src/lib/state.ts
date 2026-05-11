@@ -1,12 +1,25 @@
-import { courses, discussionMessages, feedbackItems, progressRecords, users } from "@/data/lms";
-import type { AppState, Course, DiscussionMessage, Feedback, ProgressRecord, RewardRedemption, User } from "@/types/lms";
+import { courses, discussionMessages, feedbackItems, progressRecords, quizQuestions, users } from "@/data/lms";
+import type {
+  AppState,
+  Course,
+  DiscussionMessage,
+  Feedback,
+  ProgressRecord,
+  QuizAttempt,
+  QuizQuestion,
+  RewardRedemption,
+  User
+} from "@/types/lms";
 import { rewardItems } from "@/data/lms";
+import { gradeQuizAttempt } from "@/lib/quiz";
 
 type StateSeed = Partial<AppState>;
 
 type FeedbackInput = Omit<Feedback, "id">;
 
 type DiscussionInput = Omit<DiscussionMessage, "id">;
+
+type QuizQuestionInput = Omit<QuizQuestion, "id">;
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -36,7 +49,9 @@ export function createInitialAppState(seed: StateSeed = {}): AppState {
     progressRecords: clone(seed.progressRecords ?? progressRecords),
     discussionMessages: clone(seed.discussionMessages ?? discussionMessages),
     feedbackItems: clone(seed.feedbackItems ?? feedbackItems),
-    rewardRedemptions: clone(seed.rewardRedemptions ?? [])
+    rewardRedemptions: clone(seed.rewardRedemptions ?? []),
+    quizQuestions: clone(seed.quizQuestions ?? quizQuestions),
+    quizAttempts: clone(seed.quizAttempts ?? [])
   };
 }
 
@@ -136,5 +151,59 @@ export function redeemReward(state: AppState, userId: string, rewardId: string, 
     ...state,
     users: state.users.map((item) => (item.id === userId ? { ...item, xp: item.xp - reward.costXp } : item)),
     rewardRedemptions: [...state.rewardRedemptions, redemption]
+  };
+}
+
+export function submitQuizAttempt(
+  state: AppState,
+  userId: string,
+  courseId: string,
+  lessonId: string,
+  answers: Record<string, string>,
+  createdAt: string
+): AppState {
+  const questions = state.quizQuestions.filter((question) => question.courseId === courseId && question.lessonId === lessonId);
+  const result = gradeQuizAttempt(questions, answers);
+  const attempt: QuizAttempt = {
+    id: `qa-${state.quizAttempts.length + 1}-${Date.now()}`,
+    userId,
+    courseId,
+    lessonId,
+    answers,
+    correctAnswers: result.correctAnswers,
+    totalQuestions: result.totalQuestions,
+    score: result.score,
+    passed: result.passed,
+    createdAt
+  };
+
+  const withAttempt = {
+    ...state,
+    quizAttempts: [...state.quizAttempts, attempt]
+  };
+
+  if (!result.passed) {
+    return withAttempt;
+  }
+
+  const completed = completeLesson(withAttempt, userId, courseId, lessonId, createdAt);
+
+  return {
+    ...completed,
+    progressRecords: completed.progressRecords.map((record) =>
+      record.userId === userId && record.courseId === courseId ? { ...record, score: result.score } : record
+    )
+  };
+}
+
+export function addQuizQuestion(state: AppState, input: QuizQuestionInput): AppState {
+  const nextQuestion: QuizQuestion = {
+    ...input,
+    id: `q-${input.courseId}-${state.quizQuestions.length + 1}-${Date.now()}`
+  };
+
+  return {
+    ...state,
+    quizQuestions: [...state.quizQuestions, nextQuestion]
   };
 }

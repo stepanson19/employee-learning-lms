@@ -9,8 +9,11 @@ import {
   completeLesson as completeLessonInState,
   createInitialAppState,
   redeemReward as redeemRewardInState,
+  submitQuizAttempt as submitQuizAttemptToState,
+  addQuizQuestion as addQuizQuestionToState,
   submitFeedback as submitFeedbackToState
 } from "@/lib/state";
+import type { QuizOption } from "@/types/lms";
 
 type LoginResult = { ok: true } | { ok: false; message: string };
 
@@ -27,6 +30,15 @@ interface LmsContextValue {
   submitFeedback: (input: FeedbackInput) => void;
   addDiscussionMessage: (courseId: string, text: string) => void;
   redeemReward: (rewardId: string) => void;
+  submitQuizAttempt: (courseId: string, lessonId: string, answers: Record<string, string>) => void;
+  addQuizQuestion: (input: {
+    courseId: string;
+    lessonId: string;
+    prompt: string;
+    options: QuizOption[];
+    correctOptionId: string;
+    explanation: string;
+  }) => void;
   resetDemo: () => void;
 }
 
@@ -42,15 +54,27 @@ function today(): string {
 }
 
 function loadStoredState(): AppState {
+  const initialState = createInitialAppState();
+
   if (typeof window === "undefined") {
-    return createInitialAppState();
+    return initialState;
   }
 
   try {
     const rawState = window.localStorage.getItem(storageKeys.state);
-    return rawState ? (JSON.parse(rawState) as AppState) : createInitialAppState();
+    const parsedState = rawState ? (JSON.parse(rawState) as Partial<AppState>) : null;
+
+    return parsedState
+      ? {
+          ...initialState,
+          ...parsedState,
+          quizQuestions: parsedState.quizQuestions ?? initialState.quizQuestions,
+          quizAttempts: parsedState.quizAttempts ?? initialState.quizAttempts,
+          rewardRedemptions: parsedState.rewardRedemptions ?? initialState.rewardRedemptions
+        }
+      : initialState;
   } catch {
-    return createInitialAppState();
+    return initialState;
   }
 }
 
@@ -165,6 +189,20 @@ export function LmsProvider({ children }: Readonly<{ children: ReactNode }>) {
         }
 
         setState((current) => redeemRewardInState(current, session.userId, rewardId, today()));
+      },
+      submitQuizAttempt(courseId, lessonId, answers) {
+        if (!session) {
+          return;
+        }
+
+        setState((current) => submitQuizAttemptToState(current, session.userId, courseId, lessonId, answers, today()));
+      },
+      addQuizQuestion(input) {
+        if (!session || session.role !== "author") {
+          return;
+        }
+
+        setState((current) => addQuizQuestionToState(current, input));
       },
       resetDemo() {
         const nextState = createInitialAppState();

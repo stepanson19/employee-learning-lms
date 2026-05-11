@@ -64,6 +64,8 @@ export function LessonList({ lessons, onComplete }: Readonly<{ lessons: Lesson[]
             </div>
             {lesson.completed ? (
               <StatusPill tone="green">готово</StatusPill>
+            ) : lesson.type === "test" ? (
+              <StatusPill tone="violet">через тест</StatusPill>
             ) : onComplete ? (
               <button className="secondary-button compact" onClick={() => onComplete(lesson.id)} type="button">
                 отметить
