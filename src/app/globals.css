@@ -273,6 +273,11 @@ button {
   border-radius: var(--radius);
   background: var(--surface);
   padding: 16px;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.metric-card:hover {
+  border-color: #b8c8da;
 }
 
 .metric-label {
@@ -361,6 +366,41 @@ button {
   gap: 18px;
 }
 
+.focus-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #bfd7f1;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #ffffff 0%, #edf6ff 100%);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.focus-panel h2 {
+  margin: 4px 0 0;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.focus-panel p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.focus-icon {
+  width: 46px;
+  height: 46px;
+}
+
+.focus-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .stack {
   display: grid;
   align-content: start;
@@ -370,6 +410,12 @@ button {
 .course-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-course-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -383,6 +429,13 @@ button {
   background: var(--surface);
   padding: 18px;
   box-shadow: var(--shadow);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.course-card:hover {
+  border-color: #9ebbe0;
+  box-shadow: 0 18px 42px rgba(16, 32, 51, 0.12);
+  transform: translateY(-1px);
 }
 
 .course-card h2,
@@ -399,6 +452,22 @@ button {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
+}
+
+.course-meta-row,
+.course-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.course-card-action {
+  justify-content: flex-start;
+  color: var(--accent-strong);
 }
 
 .item-text code {
@@ -627,6 +696,10 @@ button {
   font-weight: 760;
 }
 
+.primary-button:hover {
+  background: #0f1d2f;
+}
+
 .secondary-button {
   display: inline-flex;
   align-items: center;
@@ -640,6 +713,11 @@ button {
   padding: 0 14px;
   font-size: 14px;
   font-weight: 760;
+}
+
+.secondary-button.quiet {
+  border-color: transparent;
+  color: var(--muted);
 }
 
 .secondary-button.compact {
@@ -668,6 +746,23 @@ button {
   background: var(--surface);
   padding: 12px;
   text-align: left;
+}
+
+.account-card.active {
+  border-color: var(--accent);
+  background: #edf4ff;
+}
+
+.login-current {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.login-current strong {
+  display: block;
+  margin-top: 4px;
 }
 
 .account-card > span:nth-child(2) {
@@ -795,7 +890,9 @@ button {
 
   .topbar,
   .section-header,
-  .row {
+  .row,
+  .focus-panel,
+  .focus-actions {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -806,8 +903,19 @@ button {
   .toolbar-row,
   .system-actions,
   .course-grid,
+  .dashboard-course-grid,
   .module-grid,
   .login-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-actions {
+    display: grid;
+    width: 100%;
     grid-template-columns: 1fr;
   }
 }
@@ -854,5 +962,11 @@ button {
   .account-card,
   .reward-row {
     grid-template-columns: 1fr;
+  }
+
+  .course-card .row,
+  .course-meta-row {
+    flex-direction: row;
+    align-items: center;
   }
 }

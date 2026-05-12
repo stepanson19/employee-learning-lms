@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Clock, FileText, ListChecks, MessageSquareText, PlayCircle } from "lucide-react";
+import { ArrowRight, Check, Clock, FileText, ListChecks, MessageSquareText, PlayCircle } from "lucide-react";
 import type { Course, DiscussionMessage, Lesson, User } from "@/types/lms";
 import { getCourseProgress } from "@/lib/lms";
 import { ProgressBar, StatusPill } from "@/components/ui";
@@ -20,6 +20,7 @@ const lessonIcons = {
 
 export function CourseCard({ course }: Readonly<{ course: Course }>) {
   const progress = getCourseProgress(course.lessons);
+  const completedLessons = course.lessons.filter((lesson) => lesson.completed).length;
 
   return (
     <Link className="course-card" href={`/courses/${course.slug}`}>
@@ -36,12 +37,20 @@ export function CourseCard({ course }: Readonly<{ course: Course }>) {
         </div>
       </div>
       <div className="stack">
+        <div className="course-meta-row">
+          <span>{completedLessons}/{course.lessons.length} уроков</span>
+          <span>до {course.deadline}</span>
+        </div>
         <div className="chip-row">
           <StatusPill>{course.category}</StatusPill>
           <StatusPill tone="violet">{course.difficulty}</StatusPill>
           <StatusPill tone="orange">{course.durationMinutes} мин</StatusPill>
         </div>
         <ProgressBar label="прогресс курса" value={progress} />
+        <span className="course-card-action">
+          открыть курс
+          <ArrowRight size={15} />
+        </span>
       </div>
     </Link>
   );

@@ -59,6 +59,20 @@ test.describe("full lms app", () => {
     await expect(page.getByRole("heading", { name: "Аналитика и отчетность" })).toBeVisible();
   });
 
+  test("shows role-aware dashboard actions", async ({ page }) => {
+    await login(page);
+    await expect(page.getByText("следующее действие")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Продолжить назначенное обучение" })).toBeVisible();
+    await expect(page.locator(".module-grid").getByText("Аналитика")).toHaveCount(0);
+    await expect(page.locator(".module-grid").getByText("Система")).toHaveCount(0);
+
+    await page.evaluate(() => window.localStorage.clear());
+    await login(page, "hr@learnhub.local", "hr2026");
+    await expect(page.getByRole("heading", { name: "Проверить прогресс команды" })).toBeVisible();
+    await expect(page.locator(".module-grid").getByText("Аналитика")).toBeVisible();
+    await expect(page.locator(".module-grid").getByText("Система")).toBeVisible();
+  });
+
   test("restricts system tools for an employee and allows HR", async ({ page }) => {
     await login(page);
     await page.goto("/system");
