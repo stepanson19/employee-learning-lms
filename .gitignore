@@ -12,3 +12,4 @@ tsconfig.tsbuildinfo
 !.env.example
 .vercel
 .learnhub/
+.env*.local
