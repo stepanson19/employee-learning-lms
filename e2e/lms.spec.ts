@@ -57,6 +57,18 @@ test.describe("full lms app", () => {
     await page.goto("/analytics");
 
     await expect(page.getByRole("heading", { name: "Аналитика и отчетность" })).toBeVisible();
+    await expect(page.getByText("состояние обучения")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Зона внимания" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Эффективность курсов" })).toBeVisible();
+  });
+
+  test("filters analytics by department", async ({ page }) => {
+    await login(page, "hr@learnhub.local", "hr2026");
+    await page.goto("/analytics");
+    await page.getByLabel("отдел").selectOption("Поддержка");
+
+    await expect(page.getByRole("cell", { name: "Алена Сергеева" })).toBeVisible();
+    await expect(page.getByText("1 сотрудников")).toBeVisible();
   });
 
   test("shows role-aware dashboard actions", async ({ page }) => {

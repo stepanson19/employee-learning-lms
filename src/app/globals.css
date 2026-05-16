@@ -228,6 +228,7 @@ button {
 
 .page-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 
@@ -253,6 +254,7 @@ button {
 }
 
 .card {
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -287,6 +289,10 @@ button {
   font-size: 12px;
   font-weight: 720;
   text-transform: uppercase;
+}
+
+.metric-label svg {
+  vertical-align: -2px;
 }
 
 .metric-value {
@@ -367,6 +373,15 @@ button {
   gap: 18px;
 }
 
+.metric-grid > *,
+.split-grid > *,
+.page-grid > *,
+.dashboard-hero > *,
+.course-hero > *,
+.analytics-hero > * {
+  min-width: 0;
+}
+
 .focus-panel {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -403,7 +418,8 @@ button {
 }
 
 .dashboard-hero,
-.course-hero {
+.course-hero,
+.analytics-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
   gap: 16px;
@@ -415,7 +431,8 @@ button {
 }
 
 .dashboard-hero-main,
-.course-hero-main {
+.course-hero-main,
+.analytics-hero-main {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -423,21 +440,24 @@ button {
 }
 
 .dashboard-hero-main h2,
-.course-hero-main h2 {
+.course-hero-main h2,
+.analytics-hero-main h2 {
   margin: 0;
   font-size: 28px;
   line-height: 1.12;
 }
 
 .dashboard-hero-main p,
-.course-hero-main p {
+.course-hero-main p,
+.analytics-hero-main p {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
 }
 
 .dashboard-hero-side,
-.course-hero-summary {
+.course-hero-summary,
+.analytics-hero-side {
   display: grid;
   gap: 10px;
 }
@@ -513,6 +533,56 @@ button {
 
 .quiz-status-panel strong {
   font-size: 20px;
+}
+
+.insight-list,
+.course-performance-list {
+  display: grid;
+  gap: 10px;
+}
+
+.insight-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.course-performance-item {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.icon-box-green {
+  background: #e8f7f0;
+  color: var(--green);
+}
+
+.icon-box-orange {
+  background: #fff3df;
+  color: var(--orange);
+}
+
+.icon-box-red {
+  background: #ffecea;
+  color: var(--red);
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-scroll .table {
+  min-width: 640px;
 }
 
 .stack {
@@ -1129,12 +1199,15 @@ button {
   .system-actions,
   .dashboard-hero,
   .course-hero,
+  .analytics-hero,
   .dashboard-hero-main,
   .course-hero-main,
+  .analytics-hero-main,
   .timeline-list,
   .course-grid,
   .dashboard-course-grid,
   .course-hero-summary,
+  .analytics-hero-side,
   .module-grid,
   .login-grid {
     grid-template-columns: 1fr;
@@ -1204,6 +1277,7 @@ button {
   .account-card,
   .reward-row,
   .quiz-status-panel,
+  .insight-item,
   .timeline-item {
     grid-template-columns: 1fr;
   }
