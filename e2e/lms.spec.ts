@@ -73,6 +73,16 @@ test.describe("full lms app", () => {
     await expect(page.locator(".module-grid").getByText("Система")).toBeVisible();
   });
 
+  test("filters courses by search query", async ({ page }) => {
+    await login(page);
+    await page.goto("/courses");
+    await page.getByLabel("поиск курса").fill("безопасность");
+
+    await expect(page.getByRole("heading", { name: "Информационная безопасность" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Быстрый старт сотрудника" })).toHaveCount(0);
+    await expect(page.locator(".course-result-count")).toContainText("1");
+  });
+
   test("restricts system tools for an employee and allows HR", async ({ page }) => {
     await login(page);
     await page.goto("/system");

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
 import { CourseCard } from "@/components/course";
 import { EmptyState, SectionHeader } from "@/components/ui";
 import { useLms } from "@/components/LmsProvider";
@@ -36,6 +37,7 @@ export default function CoursesPage() {
   const [assignmentUserId, setAssignmentUserId] = useState("u-support");
   const [assignmentCourseId, setAssignmentCourseId] = useState("c-sales");
   const [assignmentDueDate, setAssignmentDueDate] = useState("2026-06-01");
+  const [query, setQuery] = useState("");
   const category = searchParams.get("category") ?? "все";
   const status = (searchParams.get("status") as "all" | CourseStatus | null) ?? "all";
   const categories = ["все", ...Array.from(new Set(state.courses.map((course) => course.category)))];
@@ -43,6 +45,16 @@ export default function CoursesPage() {
     category: category === "все" ? undefined : category,
     status: status === "all" ? undefined : status
   });
+  const normalizedQuery = query.trim().toLocaleLowerCase("ru");
+  const visibleCourses =
+    normalizedQuery.length === 0
+      ? filtered
+      : filtered.filter((course) =>
+          [course.title, course.description, course.category, course.difficulty].some((value) => value.toLocaleLowerCase("ru").includes(normalizedQuery))
+        );
+  const publishedCount = visibleCourses.filter((course) => course.status === "published").length;
+  const draftCount = visibleCourses.filter((course) => course.status === "draft").length;
+  const totalMinutes = visibleCourses.reduce((sum, course) => sum + course.durationMinutes, 0);
   const canManageCourses = currentUser?.role === "author";
   const canAssignCourses = currentUser?.role === "hr" || currentUser?.role === "author";
   const assignableUsers = state.users.filter((user) => user.role === "employee");
@@ -87,6 +99,22 @@ export default function CoursesPage() {
       />
 
       <section className="card card-pad stack">
+        <div className="course-filter-head">
+          <label className="search-field">
+            <Search aria-hidden="true" size={17} />
+            <span className="visually-hidden">поиск курса</span>
+            <input
+              aria-label="поиск курса"
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="найти курс по названию, описанию или категории"
+              value={query}
+            />
+          </label>
+          <div className="course-result-count" aria-live="polite">
+            <strong>{visibleCourses.length}</strong>
+            <span>курсов найдено</span>
+          </div>
+        </div>
         <div className="chip-row" aria-label="Фильтр по категории">
           {categories.map((item) => (
             <Link className={item === category ? "filter-link active" : "filter-link"} href={`/courses?category=${item}&status=${status}`} key={item}>
@@ -100,6 +128,17 @@ export default function CoursesPage() {
               {statusLabel(item)}
             </Link>
           ))}
+        </div>
+        <div className="course-summary-row">
+          <span>
+            <strong>{publishedCount}</strong> опубликованы
+          </span>
+          <span>
+            <strong>{draftCount}</strong> черновики
+          </span>
+          <span>
+            <strong>{totalMinutes}</strong> минут обучения
+          </span>
         </div>
       </section>
 
@@ -201,14 +240,14 @@ export default function CoursesPage() {
         </section>
       ) : null}
 
-      {filtered.length > 0 ? (
+      {visibleCourses.length > 0 ? (
         <section className="course-grid">
-          {filtered.map((course) => (
+          {visibleCourses.map((course) => (
             <CourseCard course={course} key={course.id} />
           ))}
         </section>
       ) : (
-        <EmptyState title="Курсы не найдены" text="поменяйте категорию или статус публикации" />
+        <EmptyState title="Курсы не найдены" text="измените поиск, категорию или статус публикации" />
       )}
     </div>
   );
