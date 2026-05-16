@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useParams } from "next/navigation";
-import { Send } from "lucide-react";
+import { ArrowRight, BookOpenCheck, ListChecks, Send, Timer } from "lucide-react";
 import { DeadlineNote, DiscussionPreview, LessonList } from "@/components/course";
 import { EmptyState, MetricCard, ProgressBar, SectionHeader, StatusPill } from "@/components/ui";
 import { useLms } from "@/components/LmsProvider";
@@ -37,6 +37,9 @@ export default function CourseDetailPage() {
 
   const courseId = course.id;
   const progress = getCourseProgress(course.lessons);
+  const completedLessons = course.lessons.filter((lesson) => lesson.completed).length;
+  const remainingLessons = Math.max(course.lessons.length - completedLessons, 0);
+  const nextLesson = course.lessons.find((lesson) => !lesson.completed);
   const courseMessages = state.discussionMessages.filter((item) => item.courseId === course.id);
   const courseProgress = state.progressRecords.filter((record) => record.courseId === course.id);
   const averageScore = Math.round(courseProgress.reduce((sum, record) => sum + record.score, 0) / Math.max(courseProgress.length, 1));
@@ -48,6 +51,8 @@ export default function CourseDetailPage() {
     ? state.quizAttempts.filter((attempt) => attempt.userId === currentUser.id && attempt.courseId === course.id && attempt.lessonId === testLesson.id).at(-1)
     : undefined;
   const allAnswered = testQuestions.length > 0 && testQuestions.every((question) => answers[question.id]);
+  const quizStatusTone = latestAttempt ? (latestAttempt.passed ? "green" : "red") : "violet";
+  const quizStatusLabel = latestAttempt ? `${latestAttempt.score}% за тест` : `${testQuestions.length} вопросов`;
 
   function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,6 +111,52 @@ export default function CourseDetailPage() {
         }
       />
 
+      <section className="course-hero">
+        <div className="course-hero-main">
+          <div className="icon-box focus-icon">
+            <BookOpenCheck size={22} />
+          </div>
+          <div className="stack">
+            <p className="metric-label">маршрут курса</p>
+            <h2>{progress}% пройдено</h2>
+            <p>{nextLesson ? `следующий шаг: ${nextLesson.title}` : "все уроки закрыты, можно закрепить результат тестом"}</p>
+            <ProgressBar label="общий прогресс" value={progress} />
+          </div>
+          <div className="focus-actions">
+            <a className="primary-button" href="#learning-route">
+              к урокам
+              <ArrowRight size={16} />
+            </a>
+            <a className="secondary-button" href="#quiz">
+              к тесту
+            </a>
+          </div>
+        </div>
+
+        <aside className="course-hero-summary">
+          <div className="course-hero-stat">
+            <Timer size={18} />
+            <span>
+              <strong>{course.durationMinutes} мин</strong>
+              <span className="muted">длительность курса</span>
+            </span>
+          </div>
+          <div className="course-hero-stat">
+            <ListChecks size={18} />
+            <span>
+              <strong>{remainingLessons} осталось</strong>
+              <span className="muted">
+                {completedLessons}/{course.lessons.length} уроков закрыто
+              </span>
+            </span>
+          </div>
+          <div className="course-hero-stat">
+            <StatusPill tone={quizStatusTone}>{quizStatusLabel}</StatusPill>
+            <span className="muted">{latestAttempt ? "последняя попытка теста" : "проверка знаний"}</span>
+          </div>
+        </aside>
+      </section>
+
       <section className="metric-grid" aria-label="Показатели курса">
         <MetricCard label="прогресс" value={`${progress}%`} note="по урокам курса" />
         <MetricCard label="награда" value={`${course.xpReward} XP`} note="после завершения" />
@@ -114,17 +165,29 @@ export default function CourseDetailPage() {
       </section>
 
       <section className="split-grid">
-        <div className="card card-pad stack">
+        <div className="card card-pad stack" id="learning-route">
           <SectionHeader title="Учебный маршрут" description="уроки, материалы и проверочные задания" />
           <ProgressBar label="общий прогресс" value={progress} />
           <LessonList lessons={course.lessons} onComplete={(lessonId) => completeLesson(course.id, lessonId)} />
         </div>
 
         <aside className="stack">
-          <div className="card card-pad stack">
+          <div className="card card-pad stack" id="quiz">
             <SectionHeader title="Проверка знаний" description="тест с автоматическим расчетом балла и обновлением прогресса" />
             {testLesson && testQuestions.length > 0 ? (
               <form className="form-grid" onSubmit={handleQuizSubmit}>
+                <div className="quiz-status-panel">
+                  <div>
+                    <p className="metric-label">статус теста</p>
+                    <strong>{quizStatusLabel}</strong>
+                    <p className="item-text">
+                      {latestAttempt
+                        ? `верных ответов: ${latestAttempt.correctAnswers} из ${latestAttempt.totalQuestions}`
+                        : "ответьте на все вопросы, чтобы увидеть результат и обновить прогресс"}
+                    </p>
+                  </div>
+                  <StatusPill tone={quizStatusTone}>{latestAttempt?.passed ? "зачет" : latestAttempt ? "пересдать" : "готов к проверке"}</StatusPill>
+                </div>
                 {testQuestions.map((question, index) => (
                   <fieldset className="quiz-card" key={question.id}>
                     <legend>

@@ -402,6 +402,119 @@ button {
   gap: 10px;
 }
 
+.dashboard-hero,
+.course-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 16px;
+  border: 1px solid #bfd7f1;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #ffffff 0%, #edf6ff 58%, #eef8f3 100%);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.dashboard-hero-main,
+.course-hero-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.dashboard-hero-main h2,
+.course-hero-main h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.12;
+}
+
+.dashboard-hero-main p,
+.course-hero-main p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.dashboard-hero-side,
+.course-hero-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.hero-stat,
+.course-hero-stat,
+.quiz-status-panel {
+  border: 1px solid rgba(184, 200, 218, 0.85);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 12px;
+}
+
+.hero-stat {
+  display: grid;
+  gap: 8px;
+}
+
+.hero-stat strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.course-hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.course-hero-stat > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.course-hero-stat strong {
+  line-height: 1.2;
+}
+
+.timeline-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.timeline-item:hover {
+  border-color: #9ebbe0;
+  background: #f5f9ff;
+}
+
+.timeline-item strong,
+.timeline-item .item-text {
+  display: block;
+}
+
+.quiz-status-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-status-panel strong {
+  font-size: 20px;
+}
+
 .stack {
   display: grid;
   align-content: start;
@@ -593,6 +706,16 @@ button {
   border-radius: var(--radius);
   background: var(--surface);
   padding: 12px;
+}
+
+.lesson-item.done {
+  border-color: #cfeade;
+  background: #fbfffd;
+}
+
+.lesson-item.actionable:hover {
+  border-color: #9ebbe0;
+  background: #f8fbff;
 }
 
 .lesson-state {
@@ -1004,8 +1127,14 @@ button {
   .form-columns,
   .toolbar-row,
   .system-actions,
+  .dashboard-hero,
+  .course-hero,
+  .dashboard-hero-main,
+  .course-hero-main,
+  .timeline-list,
   .course-grid,
   .dashboard-course-grid,
+  .course-hero-summary,
   .module-grid,
   .login-grid {
     grid-template-columns: 1fr;
@@ -1073,7 +1202,9 @@ button {
   .lesson-item,
   .leader-row,
   .account-card,
-  .reward-row {
+  .reward-row,
+  .quiz-status-panel,
+  .timeline-item {
     grid-template-columns: 1fr;
   }
 

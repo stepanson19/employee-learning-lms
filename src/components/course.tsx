@@ -61,9 +61,10 @@ export function LessonList({ lessons, onComplete }: Readonly<{ lessons: Lesson[]
     <div className="lesson-list">
       {lessons.map((lesson, index) => {
         const Icon = lessonIcons[lesson.type];
+        const itemClassName = ["lesson-item", lesson.completed ? "done" : "", !lesson.completed && onComplete ? "actionable" : ""].filter(Boolean).join(" ");
 
         return (
-          <div className="lesson-item" key={lesson.id}>
+          <div className={itemClassName} key={lesson.id}>
             <span className={lesson.completed ? "lesson-state done" : "lesson-state"}>{lesson.completed ? <Check size={16} /> : index + 1}</span>
             <div>
               <p className="item-title">{lesson.title}</p>

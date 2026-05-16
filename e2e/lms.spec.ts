@@ -63,6 +63,8 @@ test.describe("full lms app", () => {
     await login(page);
     await expect(page.getByText("следующее действие")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Продолжить назначенное обучение" })).toBeVisible();
+    await expect(page.getByText("план на неделю")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ближайшие шаги" })).toBeVisible();
     await expect(page.locator(".module-grid").getByText("Аналитика")).toHaveCount(0);
     await expect(page.locator(".module-grid").getByText("Система")).toHaveCount(0);
 
@@ -71,6 +73,16 @@ test.describe("full lms app", () => {
     await expect(page.getByRole("heading", { name: "Проверить прогресс команды" })).toBeVisible();
     await expect(page.locator(".module-grid").getByText("Аналитика")).toBeVisible();
     await expect(page.locator(".module-grid").getByText("Система")).toBeVisible();
+  });
+
+  test("shows course hero and learning roadmap state", async ({ page }) => {
+    await login(page);
+    await page.goto("/courses/onboarding");
+
+    await expect(page.getByText("маршрут курса")).toBeVisible();
+    await expect(page.getByText("следующий шаг: итоговый тест")).toBeVisible();
+    await expect(page.getByRole("link", { name: "к урокам" })).toBeVisible();
+    await expect(page.getByText("статус теста")).toBeVisible();
   });
 
   test("filters courses by search query", async ({ page }) => {
