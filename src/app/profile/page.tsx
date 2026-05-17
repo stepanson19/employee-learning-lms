@@ -104,13 +104,6 @@ export default function ProfilePage() {
           <SectionHeader
             title="Следующий шаг"
             description="ближайший курс из учебного плана сотрудника"
-            action={
-              nextPlan ? (
-                <Link className="secondary-button" href={`/courses/${nextPlan.course.slug}`}>
-                  открыть курс
-                </Link>
-              ) : null
-            }
           />
           {nextPlan ? (
             <div className="next-course-panel">
@@ -128,6 +121,12 @@ export default function ProfilePage() {
                   <StatusPill tone={statusTone[nextPlan.status]}>{statusLabels[nextPlan.status]}</StatusPill>
                 </div>
                 <ProgressBar label="прогресс курса" value={nextPlan.percent} />
+                <div className="next-course-actions">
+                  <span className="muted">следующее действие</span>
+                  <Link className="secondary-button" href={`/courses/${nextPlan.course.slug}`}>
+                    открыть курс
+                  </Link>
+                </div>
               </div>
             </div>
           ) : (

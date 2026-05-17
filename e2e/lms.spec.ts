@@ -79,6 +79,8 @@ test.describe("full lms app", () => {
     await expect(page.getByRole("heading", { name: "Учебная дорожная карта" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Пульс обучения" })).toBeVisible();
     await expect(page.locator(".next-course-panel").getByText("Быстрый старт сотрудника")).toBeVisible();
+    await page.locator(".next-course-panel").getByRole("link", { name: "открыть курс" }).click();
+    await expect(page).toHaveURL(/\/courses\/onboarding$/);
   });
 
   test("shows role-aware dashboard actions", async ({ page }) => {

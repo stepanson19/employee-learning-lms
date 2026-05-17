@@ -869,6 +869,19 @@ button {
   padding: 14px;
 }
 
+.next-course-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #d9e9fa;
+  padding-top: 12px;
+}
+
+.next-course-actions .secondary-button {
+  flex: 0 0 auto;
+}
+
 .learning-plan-list {
   display: grid;
   gap: 12px;
@@ -1366,5 +1379,10 @@ button {
   .course-meta-row {
     flex-direction: row;
     align-items: center;
+  }
+
+  .next-course-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
