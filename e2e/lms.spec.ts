@@ -71,6 +71,16 @@ test.describe("full lms app", () => {
     await expect(page.getByText("1 сотрудников")).toBeVisible();
   });
 
+  test("shows profile next step and roadmap", async ({ page }) => {
+    await login(page);
+    await page.goto("/profile");
+
+    await expect(page.getByRole("heading", { name: "Следующий шаг" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Учебная дорожная карта" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Пульс обучения" })).toBeVisible();
+    await expect(page.locator(".next-course-panel").getByText("Быстрый старт сотрудника")).toBeVisible();
+  });
+
   test("shows role-aware dashboard actions", async ({ page }) => {
     await login(page);
     await expect(page.getByText("следующее действие")).toBeVisible();

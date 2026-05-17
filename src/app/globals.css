@@ -378,7 +378,8 @@ button {
 .page-grid > *,
 .dashboard-hero > *,
 .course-hero > *,
-.analytics-hero > * {
+.analytics-hero > *,
+.profile-hero > * {
   min-width: 0;
 }
 
@@ -419,7 +420,8 @@ button {
 
 .dashboard-hero,
 .course-hero,
-.analytics-hero {
+.analytics-hero,
+.profile-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
   gap: 16px;
@@ -432,7 +434,8 @@ button {
 
 .dashboard-hero-main,
 .course-hero-main,
-.analytics-hero-main {
+.analytics-hero-main,
+.profile-hero-main {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -441,7 +444,8 @@ button {
 
 .dashboard-hero-main h2,
 .course-hero-main h2,
-.analytics-hero-main h2 {
+.analytics-hero-main h2,
+.profile-hero-main h2 {
   margin: 0;
   font-size: 28px;
   line-height: 1.12;
@@ -449,7 +453,8 @@ button {
 
 .dashboard-hero-main p,
 .course-hero-main p,
-.analytics-hero-main p {
+.analytics-hero-main p,
+.profile-hero-main p {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
@@ -457,7 +462,8 @@ button {
 
 .dashboard-hero-side,
 .course-hero-summary,
-.analytics-hero-side {
+.analytics-hero-side,
+.profile-hero-side {
   display: grid;
   gap: 10px;
 }
@@ -845,6 +851,76 @@ button {
   align-items: center;
 }
 
+.profile-hero-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  box-shadow: 0 12px 24px rgba(16, 32, 51, 0.16);
+}
+
+.next-course-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #bfd7f1;
+  border-radius: var(--radius);
+  background: #f5f9ff;
+  padding: 14px;
+}
+
+.learning-plan-list {
+  display: grid;
+  gap: 12px;
+}
+
+.learning-plan-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.learning-plan-card.completed {
+  border-color: #cfeade;
+  background: #fbfffd;
+}
+
+.learning-plan-card.overdue {
+  border-color: #f5c8c4;
+  background: #fffafa;
+}
+
+.profile-badge-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-badge-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.profile-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.history-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-weight: 720;
+}
+
 .avatar {
   display: grid;
   width: 64px;
@@ -1200,14 +1276,17 @@ button {
   .dashboard-hero,
   .course-hero,
   .analytics-hero,
+  .profile-hero,
   .dashboard-hero-main,
   .course-hero-main,
   .analytics-hero-main,
+  .profile-hero-main,
   .timeline-list,
   .course-grid,
   .dashboard-course-grid,
   .course-hero-summary,
   .analytics-hero-side,
+  .profile-hero-side,
   .module-grid,
   .login-grid {
     grid-template-columns: 1fr;
@@ -1278,6 +1357,7 @@ button {
   .reward-row,
   .quiz-status-panel,
   .insight-item,
+  .next-course-panel,
   .timeline-item {
     grid-template-columns: 1fr;
   }
