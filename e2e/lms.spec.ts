@@ -197,10 +197,20 @@ test.describe("full lms app", () => {
     await page.goto("/courses");
     await page.getByLabel("выбор сотрудника").selectOption("u-support");
     await page.getByLabel("выбор курса").selectOption("c-sales");
-    await page.getByLabel("срок назначения").fill("2026-06-01");
+    await page.getByLabel("срок прохождения").selectOption("custom");
+    await page.getByLabel("дата дедлайна").fill("2026-06-01");
     await page.getByRole("button", { name: "назначить курс" }).click();
 
     await expect(page.locator(".list-item").filter({ hasText: "Алена Сергеева" }).filter({ hasText: "Продажи без потери качества · до 2026-06-01" }).first()).toBeVisible();
+  });
+
+  test("links feedback course names to course pages for HR", async ({ page }) => {
+    await login(page, "hr@learnhub.local", "hr2026");
+    await page.goto("/feedback");
+    await page.getByRole("link", { name: "Продажи без потери качества" }).first().click();
+
+    await expect(page).toHaveURL(/\/courses\/sales$/);
+    await expect(page.getByRole("heading", { name: "Продажи без потери качества" })).toBeVisible();
   });
 
   test("submits feedback from the signed-in user", async ({ page }) => {

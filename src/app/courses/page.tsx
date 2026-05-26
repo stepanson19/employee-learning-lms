@@ -11,6 +11,32 @@ import { filterCourses } from "@/lib/lms";
 import type { CourseStatus } from "@/types/lms";
 
 const statuses: Array<"all" | CourseStatus> = ["all", "published", "review", "draft"];
+const assignmentDeadlineOptions = [
+  { value: "7", label: "1 неделя", days: 7 },
+  { value: "14", label: "2 недели", days: 14 },
+  { value: "30", label: "1 месяц", days: 30 },
+  { value: "60", label: "2 месяца", days: 60 },
+  { value: "90", label: "3 месяца", days: 90 },
+  { value: "custom", label: "своя дата", days: null }
+] as const;
+
+type AssignmentDeadlineOption = (typeof assignmentDeadlineOptions)[number]["value"];
+
+function formatDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function addDaysFromToday(days: number): string {
+  const date = new Date();
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+
+  return formatDateInputValue(date);
+}
 
 function statusLabel(status: "all" | CourseStatus) {
   const labels = {
@@ -36,7 +62,8 @@ export default function CoursesPage() {
   const [lessonTwo, setLessonTwo] = useState("практический разбор");
   const [assignmentUserId, setAssignmentUserId] = useState("u-support");
   const [assignmentCourseId, setAssignmentCourseId] = useState("c-sales");
-  const [assignmentDueDate, setAssignmentDueDate] = useState("2026-06-01");
+  const [assignmentDeadlineOption, setAssignmentDeadlineOption] = useState<AssignmentDeadlineOption>("14");
+  const [customAssignmentDueDate, setCustomAssignmentDueDate] = useState(() => addDaysFromToday(14));
   const [query, setQuery] = useState("");
   const category = searchParams.get("category") ?? "все";
   const status = (searchParams.get("status") as "all" | CourseStatus | null) ?? "all";
@@ -59,6 +86,8 @@ export default function CoursesPage() {
   const canAssignCourses = currentUser?.role === "hr" || currentUser?.role === "author";
   const assignableUsers = state.users.filter((user) => user.role === "employee");
   const assignableCourses = state.courses.filter((course) => course.status === "published");
+  const selectedDeadlineOption = assignmentDeadlineOptions.find((option) => option.value === assignmentDeadlineOption) ?? assignmentDeadlineOptions[1];
+  const assignmentDueDate = selectedDeadlineOption.days === null ? customAssignmentDueDate : addDaysFromToday(selectedDeadlineOption.days);
 
   function handleCreateCourse(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -211,10 +240,34 @@ export default function CoursesPage() {
                     ))}
                   </select>
                 </label>
-                <label>
-                  <span className="metric-label">срок назначения</span>
-                  <input className="input" onChange={(event) => setAssignmentDueDate(event.target.value)} type="date" value={assignmentDueDate} />
-                </label>
+                <div className="form-columns">
+                  <label>
+                    <span className="metric-label">срок прохождения</span>
+                    <select
+                      aria-label="срок прохождения"
+                      className="select"
+                      onChange={(event) => setAssignmentDeadlineOption(event.target.value as AssignmentDeadlineOption)}
+                      value={assignmentDeadlineOption}
+                    >
+                      {assignmentDeadlineOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="metric-label">дедлайн</span>
+                    <input
+                      aria-label="дата дедлайна"
+                      className="input"
+                      disabled={assignmentDeadlineOption !== "custom"}
+                      onChange={(event) => setCustomAssignmentDueDate(event.target.value)}
+                      type="date"
+                      value={assignmentDueDate}
+                    />
+                  </label>
+                </div>
                 <button className="secondary-button" type="submit">
                   назначить курс
                 </button>

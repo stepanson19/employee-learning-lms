@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { Send } from "lucide-react";
 import { SectionHeader, StatusPill } from "@/components/ui";
 import { useLms } from "@/components/LmsProvider";
@@ -63,7 +64,13 @@ export default function FeedbackPage() {
               <div className="list-item" key={message.id}>
                 <div className="row">
                   <strong>{author?.name ?? "участник"}</strong>
-                  <StatusPill>{course?.title ?? "курс"}</StatusPill>
+                  {course ? (
+                    <Link className="course-title-link" href={`/courses/${course.slug}`}>
+                      <StatusPill>{course.title}</StatusPill>
+                    </Link>
+                  ) : (
+                    <StatusPill>курс</StatusPill>
+                  )}
                 </div>
                 <p className="item-text">{message.text}</p>
                 <p className="metric-note">{message.createdAt}</p>
@@ -116,7 +123,13 @@ export default function FeedbackPage() {
               <div className="list-item" key={item.id}>
                 <div className="row">
                   <div>
-                    <strong>{course?.title ?? "курс"}</strong>
+                    {course ? (
+                      <Link className="course-title-link" href={`/courses/${course.slug}`}>
+                        <strong>{course.title}</strong>
+                      </Link>
+                    ) : (
+                      <strong>курс</strong>
+                    )}
                     <p className="item-text">{user?.name ?? "сотрудник"}</p>
                   </div>
                   <StatusPill tone={item.rating >= 5 ? "green" : "blue"}>{item.rating}/5</StatusPill>

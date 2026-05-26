@@ -183,7 +183,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <aside className="card card-pad stack">
+        <aside className="card card-pad stack dashboard-progress-card">
           <SectionHeader title="Личный прогресс" description="путь до следующего уровня" />
           <ProgressBar label={`до уровня «${level.nextLabel ?? level.label}»`} value={level.progressToNext} />
           <div className="chip-row">

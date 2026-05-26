@@ -609,6 +609,10 @@ button {
   gap: 16px;
 }
 
+.dashboard-progress-card {
+  margin-top: 42px;
+}
+
 .course-card {
   display: grid;
   min-height: 260px;
@@ -766,6 +770,16 @@ button {
   border-color: var(--accent);
   background: #e8f1ff;
   color: var(--accent-strong);
+}
+
+.course-title-link {
+  color: var(--accent-strong);
+  font-weight: 760;
+}
+
+.course-title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .lesson-list {
@@ -1313,6 +1327,10 @@ button {
     display: grid;
     width: 100%;
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-progress-card {
+    margin-top: 0;
   }
 }
 
